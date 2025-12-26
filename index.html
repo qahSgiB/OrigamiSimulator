@@ -747,6 +747,7 @@
     <script type="text/javascript" src="dependencies/jquery-ui.min.js"></script>
     <script type="text/javascript" src="dependencies/flat-ui.min.js"></script>
     <script type="text/javascript" src="dependencies/three.min.js"></script>
+    <!-- <script type="text/javascript" src="dependencies/three.js"></script> -->
     <script type="text/javascript" src="dependencies/binary_stl_writer.js"></script>
     <script type="text/javascript" src="dependencies/TrackballControls.js"></script>
     <!--<script type="text/javascript" src="dependencies/Projector.js"></script>-->
@@ -792,12 +793,16 @@
     <script type="text/javascript" src="js/importer.js"></script>
     <script type="text/javascript" src="js/VRInterface.js"></script>
     <script type="text/javascript" src="js/videoAnimator.js"></script>
+    <script type="text/javascript" src="js/drawing.js"></script>
 
     <script type="text/javascript" src="dependencies/cdt2d.js"></script><!-- constrained delaunay triangulation -->
     <script type="text/javascript" src="dependencies/svgpath.js"></script>
     <script type="text/javascript" src="js/curvedFolding.js"></script>
 
     <script type="text/javascript" src="js/main.js"></script>
+
+    <script id="drawLineVertex" type="x-shader/x-vertex"></script>
+    <script id="drawLineFragment" type="x-shader/x-fragment"></script>
 </head>
 <body>
 
@@ -1092,7 +1097,7 @@
             <li><a id="navPattern" href="#">Pattern</a></li>
             <li><a id="navSimulation" href="#">Simulation</a></li>
             <li><a id="about" class="menuHoverControls" target="_blank" href="#">About</a></li>
-			
+
         </ul>
 		 <ul class="nav navbar-nav navbar-right">
 			<li><a id="PackCADLink" href="https://packcad.com/">We're working on something new → PackCAD</a></li>
@@ -1224,9 +1229,9 @@
 <div id="svgViewer"></div>
 <div id="helper">Load more origami patterns here!</div>
 <div id="controlsBottom">
-    <div id="viewToggle" class="bigToggle">
+    <div id="viewToggle" class="bigToggleButBetter">
         <div>
-            <a href="#" id="colorToggle"><div class="active"><img src="assets/hyparColorSmall.png"/><span>Material</span></div></a><div class="separator"></div><a href="#" id="strainToggle"><div><img src="assets/hyparStrainSmall.png"/><span>Strain</span></div></a>
+            <a href="#" id="colorToggle"><div class="active"><img src="assets/hyparColorSmall.png"/><span>Material</span></div></a><div class="separator"></div><a href="#" id="strainToggle"><div><img src="assets/hyparStrainSmall.png"/><span>Strain</span></div></a></a><div class="separator"></div><a href="#" id="textureToggle"><div><img src="assets/horsee.png"/><span>Texture</span></div></a>
         </div>
         View Mode
     </div>
@@ -1246,9 +1251,10 @@
         </a>
         <span>Fold Percent: <span id="foldPercentSimple"></span>%</span>
     </div>
-    <div id="controlsToggle" class="bigToggle">
+    <div id="controlsToggle" class="bigToggleButBetter">
         <div>
-            <a href="#" id="orbitToggle"><div class="active"><img class="preserveAspect" src="assets/rotateSmall.png"/><span>Rotate</span></div></a><div class="separator"></div><a href="#" id="grabToggle"><div><img class="preserveAspect" src="assets/grabSmall.png"/><span>Grab</span></div></a>
+            <!-- TODO: try formatting, see the problem when running, maybe related to inline-block -->
+            <a href="#" id="orbitToggle"><div class="active"><img class="preserveAspect" src="assets/rotateSmall.png"/><span>Rotate</span></div></a><div class="separator"></div><a href="#" id="grabToggle"><div><img class="preserveAspect" src="assets/grabSmall.png"/><span>Grab</span></div></a><div class="separator"></div><a href="#" id="drawToggle"><div><img class="preserveAspect" src="assets/draw.png"/><span>Draw</span></div></a>
         </div>
         Control Mode
     </div>
@@ -1364,14 +1370,14 @@
                         <li>edges_assignment</li>
                         <li>faces_vertices</li>
                     </ul>
-                    You may specify the target fold angle of each crease using the edges_foldAngle field. 
-                    Note that fold angle is a number in degrees lying in the range [−180, 180]. 
+                    You may specify the target fold angle of each crease using the edges_foldAngle field.
+                    Note that fold angle is a number in degrees lying in the range [−180, 180].
                     The fold angle is positive for valley folds, negative for mountain folds, and zero for flat regions.
                     Accordingly, the sign of edges_foldAngle should match edges_assignment if both are specified.
                     You may also assign a null fold angle to a crease so that it is allowed to move freely - this is especially useful when the fold angle is unknown or the crease pattern is fully constrained and able to be driven by other creases in the system.
                     <br/><br/>
                     If you are unsure whether your FOLD file is valid, you can inspect it using the
-                    <a target="_blank" href="https://edemaine.github.io/fold/examples/foldviewer.html">FOLD Viewer</a>. 
+                    <a target="_blank" href="https://edemaine.github.io/fold/examples/foldviewer.html">FOLD Viewer</a>.
                     If you are having trouble, please refer to the <a target=_blank href="https://github.com/edemaine/fold/blob/master/doc/spec.md">FOLD spec</a>.
                     <br/><br/>
                     <b>Importing SVG:</b><br/><br/>

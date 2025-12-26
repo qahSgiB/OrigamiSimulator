@@ -102,7 +102,7 @@ function initModel(globals){
                 getSolver().render();
                 setGeoUpdates();
             }
-        } else {
+        } else if (globals.colorMode == "color") {
             material = new THREE.MeshPhongMaterial({
                 flatShading:true,
                 side:THREE.FrontSide,
@@ -118,6 +118,26 @@ function initModel(globals){
                 polygonOffsetUnits: 1
             });
             material.color.setStyle( "#" + globals.color1);
+            material2.color.setStyle( "#" + globals.color2);
+            backside.visible = true;
+        } else if (globals.colorMode === "texture") {
+            material = new THREE.MeshBasicMaterial({
+                flatShading:true,
+                // side:THREE.FrontSide,
+                polygonOffset: true,
+                polygonOffsetFactor: polygonOffset, // positive value pushes polygon further away
+                polygonOffsetUnits: 1,
+                map: globals.drawing.texture,
+            });
+            material2 = new THREE.MeshBasicMaterial({
+                flatShading:true,
+                side:THREE.BackSide,
+                polygonOffset: true,
+                polygonOffsetFactor: polygonOffset, // positive value pushes polygon further away
+                polygonOffsetUnits: 1
+            });
+            // material.color.setStyle( "#" + globals.color1);
+            material.color.setStyle('#ffffff');
             material2.color.setStyle( "#" + globals.color2);
             backside.visible = true;
         }
@@ -243,6 +263,38 @@ function initModel(globals){
         creaseParams = nextCreaseParams;
         var _edges = fold.edges_vertices;
 
+        // # uv start
+        // y === 0.0
+        // compute min & max
+        var min_x = Infinity;
+        var min_z = Infinity;
+        var max_x = -Infinity;
+        var max_z = -Infinity;
+        for (var i=0;i<fold.vertices_coords.length;i++){
+            var vertex = fold.vertices_coords[i];
+
+            if (vertex[0] < min_x) { min_x = vertex[0]; }
+            if (vertex[0] > max_x) { max_x = vertex[0]; }
+            if (vertex[2] < min_z) { min_z = vertex[2]; }
+            if (vertex[2] > max_z) { max_z = vertex[2]; }
+        }
+
+        var uvs = [];
+
+        var scale_x = max_x - min_x;
+        var scale_z = max_z - min_z;
+
+        for (var i=0;i<fold.vertices_coords.length;i++){
+            var vertex = fold.vertices_coords[i];
+
+            uvs.push([
+                (vertex[0] - min_x) / scale_x,
+                (vertex[2] - min_z) / scale_z,
+            ]);
+        }
+
+        // uv end
+
         var _vertices = [];
         for (var i=0;i<fold.vertices_coords.length;i++){
             var vertex = fold.vertices_coords[i];
@@ -289,6 +341,7 @@ function initModel(globals){
         }
 
         positions = new Float32Array(vertices.length*3);
+        uvs_array = new Float32Array(vertices.length*2);
         colors = new Float32Array(vertices.length*3);
         indices = new Uint16Array(faces.length*3);
 
@@ -302,6 +355,12 @@ function initModel(globals){
             indices[3*i] = face[0];
             indices[3*i+1] = face[1];
             indices[3*i+2] = face[2];
+        }
+
+        for (var i=0;i<uvs.length;i++){
+            var uv = uvs[i];
+            uvs_array[2*i] = uv[0];
+            uvs_array[2*i+1] = uv[1];
         }
 
         clearGeometries();
@@ -338,6 +397,7 @@ function initModel(globals){
         });
 
         geometry.addAttribute('position', positionsAttribute);
+        geometry.addAttribute('uv', new THREE.BufferAttribute(uvs_array, 2));
         geometry.addAttribute('color', new THREE.BufferAttribute(colors, 3));
         geometry.setIndex(new THREE.BufferAttribute(indices, 1));
         // geometry.attributes.position.needsUpdate = true;

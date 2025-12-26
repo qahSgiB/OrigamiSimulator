@@ -1,0 +1,1 @@
+mipmapy bol problem - pre kresliacu texturu tam nemozu byt

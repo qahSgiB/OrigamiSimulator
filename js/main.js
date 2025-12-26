@@ -50,6 +50,10 @@ $(function() {
     }
 
     globals = initGlobals();
+
+    // for debugging
+    globals.d = {}; // TODO: remove
+
     globals.threeView = initThreeView(globals);
     globals.controls = initControls(globals);
     globals.UI3D = init3DUI(globals);
@@ -63,6 +67,8 @@ $(function() {
     globals.videoAnimator = initVideoAnimator(globals);
 
     globals.curvedFolding = initCurvedFolding(globals);//for curved folding
+
+    globals.drawing = initDrawing(globals);
 
     // Load demo model: waterbomb unless model specified in URL via ?model=FILE
     // where FILE is the data-url attribute of an <a class="demo">.

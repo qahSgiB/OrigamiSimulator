@@ -573,15 +573,22 @@ function initControls(globals){
         if (val == "color") {
             $("#coloredMaterialOptions").show();
             $("#colorToggle>div").addClass("active");
-            $("#strainToggle>div").removeClass("active");
-        }
-        else {
+        } else {
             $("#coloredMaterialOptions").hide();
             $("#colorToggle>div").removeClass("active");
-            $("#strainToggle>div").addClass("active");
         }
-        if (val == "axialStrain") $("#axialStrainMaterialOptions").show();
-        else $("#axialStrainMaterialOptions").hide();
+        if (val == "axialStrain") {
+            $("#axialStrainMaterialOptions").show();
+            $("#strainToggle>div").addClass("active");
+        } else {
+            $("#axialStrainMaterialOptions").hide();
+            $("#strainToggle>div").removeClass("active");
+        }
+        if (val === "texture") {
+            $("#textureToggle>div").addClass("active");
+        } else {
+            $("#textureToggle>div").removeClass("active");
+        }
         $(".radio>input[value="+val+"]").prop("checked", true);
         globals.model.setMeshMaterial();
     }
@@ -591,6 +598,9 @@ function initControls(globals){
     });
     setLink("#strainToggle", function(){
         setColorMode("axialStrain");
+    });
+    setLink("#textureToggle", function(){
+        setColorMode("texture");
     });
 
     setHexInput("#color1", globals.color1, function(val){
@@ -693,24 +703,48 @@ function initControls(globals){
 
     setCheckbox($("#userInteractionEnabled"), globals.userInteractionEnabled, enableInteraction);
     function enableInteraction(val){
-        globals.userInteractionEnabled = val;
-        $("#userInteractionEnabled").prop('checked', val);
-        if (val) {
+        setMode(val ? 'grab' : 'orbit');
+    }
+    function setMode(mode) {
+        globals.userInteractionEnabled = mode === 'grab';
+        globals.drawingActive = mode === 'draw';
+        $("#userInteractionEnabled").prop('checked', mode === 'grab');
+        if (mode === 'grab') {
             $("#grabToggle>div").addClass("active");
             $("#orbitToggle>div").removeClass("active");
+            $("#drawToggle>div").removeClass("active");
+
             globals.rotateModel = null;
             globals.threeView.resetModel();
-        } else {
+
+            globals.drawing.end();
+        } else if (mode === 'orbit') {
             $("#grabToggle>div").removeClass("active");
             $("#orbitToggle>div").addClass("active");
+            $("#drawToggle>div").removeClass("active");
+
             globals.UI3D.hideHighlighters();
+
+            globals.drawing.end();
+        } else if (mode === 'draw') {
+            $("#grabToggle>div").removeClass("active");
+            $("#orbitToggle>div").removeClass("active");
+            $("#drawToggle>div").addClass("active");
+
+            globals.rotateModel = null;
+            globals.threeView.resetModel();
+
+            globals.drawing.start();
         }
     }
     setLink("#grabToggle", function(){
-        enableInteraction(true);
+        setMode('grab');
     });
     setLink("#orbitToggle", function(){
-        enableInteraction(false);
+        setMode('orbit');
+    });
+    setLink("#drawToggle", function(){
+        setMode('draw');
     });
 
     setCheckbox($("#foldUseAngles"), globals.foldUseAngles, function(val){
@@ -940,7 +974,8 @@ function initControls(globals){
     return {
         setDeltaT: setDeltaT,
         updateCreasePercent: updateCreasePercent,
-        setSliderInputVal: setSliderInputVal
+        setSliderInputVal: setSliderInputVal,
+        setColorMode: setColorMode,
     }
 }
 

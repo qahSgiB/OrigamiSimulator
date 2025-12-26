@@ -11,7 +11,7 @@ function initGlobals(){
         scale: 1,
 
         //view
-        colorMode: "color",
+        colorMode: "color", // allowed values: color, axialStrain, normal, texture
         calcFaceStrain: false,
         color1: "ec008b",
         color2: "dddddd",
@@ -103,7 +103,9 @@ function initGlobals(){
         capturerFrames: 0,
         shouldScaleCanvas: false,
         isGif: false,
-        shouldAnimateFoldPercent: false
+        shouldAnimateFoldPercent: false,
+
+        drawingActive: false,
     };
 
     function setCreasePercent(percent){
