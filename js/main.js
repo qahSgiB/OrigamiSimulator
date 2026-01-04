@@ -79,4 +79,9 @@ $(function() {
     }
     model = model.replace(/'/g, ''); // avoid messing up query
     $(".demo[data-url='"+model+"']").click();
+
+    // TODO: debug only
+    setTimeout(function() {
+        globals.controls.setMode('draw');
+    }, 1500.0);
 });

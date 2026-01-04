@@ -432,6 +432,8 @@ function initModel(globals){
 
         syncSolver();
 
+        globals.drawing.updateGeometry(geometry);
+
         globals.needsSync = false;
         if (!globals.simulationRunning) reset();
     }

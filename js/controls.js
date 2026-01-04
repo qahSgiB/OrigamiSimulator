@@ -794,6 +794,64 @@ function initControls(globals){
         $("#helper").hide();
     });
 
+    // # drawing controls
+    function brushTypeClass(brushType) {
+        return "#brush-type-" + brushType + " > img";
+    }
+
+    for (var i = 0; i < 6; i++) {
+        (function (i) {
+            var brushClass = brushTypeClass(i);
+
+            setLink(brushClass, function() {
+                var oldBrushClass = brushTypeClass(globals.drawing.controls.getBrushType());
+                $(oldBrushClass).removeClass("brush-type-image-active");
+
+                globals.drawing.controls.setBrushType(i);
+
+                $(brushClass).addClass("brush-type-image-active");
+            });
+        })(i);
+    }
+
+    // TODO: default values
+    setSlider("#brush-size", 50, 1, 100, 1, function (brushSize) {
+        globals.drawing.controls.setBrushSize(brushSize);
+
+        $('#brush-size-value').text(brushSize + ' px');
+    });
+
+    setSlider("#brush-spacing", 5, 1, 10, 0.5, function (spacing) {
+        globals.drawing.controls.setSpacing(spacing);
+
+        $('#brush-spacing-value').text(spacing + ' px');
+    });
+
+    setLink("#drawing-export", function () {
+        globals.drawing.controls.saveTexture();
+    });
+
+    setLink("#drawing-clear", function () {
+        globals.drawing.controls.clear();
+    });
+
+    setLink("#drawing-reset-controls", function () {
+        var oldBrushClass = brushTypeClass(globals.drawing.controls.getBrushType());
+
+        // TODO: ui reseting maybe shouldn't be done here
+        globals.drawing.controls.resetControlsValues();
+
+        $("#brush-size").slider('value', 50);
+        $('#brush-size-value').text('50 px');
+
+        $("#brush-spacing").slider('value', 5);
+        $('#brush-spacing-value').text('5 px');
+
+        $(oldBrushClass).removeClass("brush-type-image-active");
+        var brushClass = brushTypeClass(globals.drawing.controls.getBrushType());
+        $(brushClass).addClass("brush-type-image-active");
+    });
+
 
     function setButtonGroup(id, callback){
         $(id+" a").click(function(e){
@@ -976,6 +1034,7 @@ function initControls(globals){
         updateCreasePercent: updateCreasePercent,
         setSliderInputVal: setSliderInputVal,
         setColorMode: setColorMode,
+        setMode: setMode,
     }
 }
 

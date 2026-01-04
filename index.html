@@ -746,8 +746,8 @@
     <script type="text/javascript" src="dependencies/jquery-3.2.1.min.js"></script>
     <script type="text/javascript" src="dependencies/jquery-ui.min.js"></script>
     <script type="text/javascript" src="dependencies/flat-ui.min.js"></script>
-    <script type="text/javascript" src="dependencies/three.min.js"></script>
-    <!-- <script type="text/javascript" src="dependencies/three.js"></script> -->
+    <!-- <script type="text/javascript" src="dependencies/three.min.js"></script> -->
+    <script type="text/javascript" src="dependencies/three.js"></script>
     <script type="text/javascript" src="dependencies/binary_stl_writer.js"></script>
     <script type="text/javascript" src="dependencies/TrackballControls.js"></script>
     <!--<script type="text/javascript" src="dependencies/Projector.js"></script>-->
@@ -800,9 +800,6 @@
     <script type="text/javascript" src="js/curvedFolding.js"></script>
 
     <script type="text/javascript" src="js/main.js"></script>
-
-    <script id="drawLineVertex" type="x-shader/x-vertex"></script>
-    <script id="drawLineFragment" type="x-shader/x-fragment"></script>
 </head>
 <body>
 
@@ -1231,7 +1228,7 @@
 <div id="controlsBottom">
     <div id="viewToggle" class="bigToggleButBetter">
         <div>
-            <a href="#" id="colorToggle"><div class="active"><img src="assets/hyparColorSmall.png"/><span>Material</span></div></a><div class="separator"></div><a href="#" id="strainToggle"><div><img src="assets/hyparStrainSmall.png"/><span>Strain</span></div></a></a><div class="separator"></div><a href="#" id="textureToggle"><div><img src="assets/horsee.png"/><span>Texture</span></div></a>
+            <a href="#" id="colorToggle"><div class="active"><img src="assets/hyparColorSmall.png"/><span>Material</span></div></a><div class="separator"></div><a href="#" id="strainToggle"><div><img src="assets/hyparStrainSmall.png"/><span>Strain</span></div></a></a><div class="separator"></div><a href="#" id="textureToggle"><div><img src="assets/hors.png"/><span>Texture</span></div></a>
         </div>
         View Mode
     </div>
@@ -1254,7 +1251,7 @@
     <div id="controlsToggle" class="bigToggleButBetter">
         <div>
             <!-- TODO: try formatting, see the problem when running, maybe related to inline-block -->
-            <a href="#" id="orbitToggle"><div class="active"><img class="preserveAspect" src="assets/rotateSmall.png"/><span>Rotate</span></div></a><div class="separator"></div><a href="#" id="grabToggle"><div><img class="preserveAspect" src="assets/grabSmall.png"/><span>Grab</span></div></a><div class="separator"></div><a href="#" id="drawToggle"><div><img class="preserveAspect" src="assets/draw.png"/><span>Draw</span></div></a>
+            <a href="#" id="orbitToggle"><div class="active"><img class="preserveAspect" src="assets/rotateSmall.png"/><span>Rotate</span></div></a><div class="separator"></div><a href="#" id="grabToggle"><div><img class="preserveAspect" src="assets/grabSmall.png"/><span>Grab</span></div></a><div class="separator"></div><a href="#" id="drawToggle"><div><img class="preserveAspect" src="assets/icons/drawing/draw.png"/><span>Draw</span></div></a>
         </div>
         Control Mode
     </div>
@@ -1349,6 +1346,38 @@
             <div class="extraSpace"></div>
         </div>
     </div>
+</div>
+
+<div id="controlsDrawing">
+    <p class="drawing-a">Drawing Controls</p>
+    <p class="drawing-b">Brush</p>
+    <div class="drawing-brush-grid">
+        <div class="drawing-brush-grid-item"><a href="#" id="brush-type-0"><img class="brush-type-image" src="assets/icons/drawing/1.png" /></a></div>
+        <div class="drawing-brush-grid-item"><a href="#" id="brush-type-1"><img class="brush-type-image" src="assets/icons/drawing/2.png" /></a></div>
+        <div class="drawing-brush-grid-item"><a href="#" id="brush-type-2"><img class="brush-type-image" src="assets/icons/drawing/3.png" /></a></div>
+        <div class="drawing-brush-grid-item"><a href="#" id="brush-type-3"><img class="brush-type-image brush-type-image-active" src="assets/icons/drawing/4.png" /></a></div>
+        <div class="drawing-brush-grid-item"><a href="#" id="brush-type-5"><img class="brush-type-image" src="assets/icons/drawing/6.png" /></a></div>
+        <div class="drawing-brush-grid-item"><a href="#" id="brush-type-4"><img class="brush-type-image" src="assets/hors.png" /></a></div>
+    </div>
+    <div class="brush-slider brush-slider-size">
+        <div class="brush-slider-text">
+            <p class="brush-slider-title">Size</p>
+            <p id="brush-size-value" class="brush-slider-value">50 px</p>
+        </div>
+        <div id="brush-size" class="brush-slider-slider flat-slider ui-slider ui-corner-all ui-slider-horizontal ui-widget ui-widget-content"></div>
+    </div>
+    <div class="brush-slider brush-slider-spacing">
+        <div class="brush-slider-text">
+            <p class="brush-slider-title">Spacing</p>
+            <p id="brush-spacing-value" class="brush-slider-value">5 px</p>
+        </div>
+        <div id="brush-spacing" class="brush-slider-slider flat-slider ui-slider ui-corner-all ui-slider-horizontal ui-widget ui-widget-content"></div>
+    </div>
+    <div class="drawing-aux">
+        <a href="#" id="drawing-clear"><p class="drawing-aux-button">Clear</p></a>
+        <a href="#" id="drawing-reset-controls"><p class="drawing-aux-button">Reset controls</p></a>
+    </div>
+    <a href="#" id="drawing-export"><p class="drawing-export">Export Texture</p></a>
 </div>
 
 <div class="modal fade" id="tipsModal" tabindex="-1" role="dialog">

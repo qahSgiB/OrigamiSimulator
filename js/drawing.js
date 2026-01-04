@@ -1,100 +1,11 @@
 function initDrawing(globals) {
-  // # fns
-  function fetchShader(url) {
+  function fetchText(url) {
     return fetch(url).then(function (response) {
       return response.text();
     });
   }
 
-  function qPrepare() {
-    Promise.all([
-      fetchShader('shaders/drawing/draw-line.frag'),
-      fetchShader('shaders/drawing/draw-line.vert'),
-      textureLoaderP('horsee.png')
-    ]).then(function (loaded) {
-      var fragmentShader = loaded[0];
-      var vertexShader = loaded[1];
-      var horseeTexture = loaded[2];
-
-      qPrepare1(fragmentShader, vertexShader, horseeTexture);
-    });
-  }
-
-  function qPrepare1(fragmentShader, vertexShader, horseeTexture) {
-    var hs = qTextureSize / 2;
-    qCamera = new THREE.OrthographicCamera(-hs, hs, hs, -hs, 1, 10);
-
-    qScene = new THREE.Scene();
-
-    qTexture = new THREE.WebGLRenderTarget(qTextureSize, qTextureSize, { depthBuffer: false });
-
-    qMaterial = new THREE.ShaderMaterial({
-      vertexShader: vertexShader,
-      fragmentShader: fragmentShader,
-      uniforms: {
-        type: { value: 3 },
-        mouse: { value: new THREE.Vector2(0.0, 0.0) },
-        r: { value: 0.05 },
-        brush: { value: horseeTexture },
-      },
-      transparent: true,
-      blending: THREE.CustomBlending,
-      blendEquation: THREE.AddEquation,
-      blendSrc: THREE.SrcAlphaFactor,
-      blendDst: THREE.OneMinusSrcAlphaFactor,
-    });
-
-    var qPlane = new THREE.PlaneGeometry(qTextureSize, qTextureSize);
-
-    var qQuad = new THREE.Mesh(qPlane, qMaterial);
-    qQuad.position.z = -5;
-    qScene.add(qQuad);
-
-    globals.drawing.texture = qTexture.texture;
-
-    qClear(); // TODO: where to put this
-  }
-
-  function withQ(qdo) {
-    var renderer = globals.threeView.renderer;
-
-    var originalAutoClear = renderer.autoClear;
-    renderer.autoClear = false;
-
-    renderer.setRenderTarget(qTexture);
-    qdo(renderer); // TODO: should renderer be param
-    renderer.setRenderTarget(null);
-
-    renderer.autoClear = originalAutoClear;
-  }
-
-  function qDraw() {
-    withQ(function (renderer) {
-      renderer.render(qScene, qCamera, qTexture);
-    })
-  }
-
-  function qClear() {
-    withQ(function (renderer) {
-      renderer.setClearColor(new THREE.Color(1.0, 0.65, 0.9));
-      renderer.clear();
-    })
-  }
-
-  function qSetBrushType(type) {
-    qMaterial.uniforms.type.value = type;
-  }
-
-  function qSetRadius(radius) {
-    qMaterial.uniforms.r.value = radius;
-  }
-
-  // # raycaster
-  var raycaster = new THREE.Raycaster();
-
-  // // # textures
-  var textureLoader = new THREE.TextureLoader();
-  var textureLoaderP = function(textureName) {
+  function fetchTexture(textureLoader, textureName) {
     return new Promise(function(resolve) {
       textureLoader.load(textureName, function (texture) {
         resolve(texture)
@@ -102,37 +13,154 @@ function initDrawing(globals) {
     })
   }
 
-  // textureLoader.load('horsee.png', function (horseeTextureL) {
-  //   // horseeTextureL.generateMipmaps = false;
-  //   // horseeTextureL.magFilter = THREE.LinearFilter;
-  //   // horseeTextureL.minFilter = THREE.LinearFilter;
-  //   horseeTexture = horseeTextureL;
-  // });
-  // textureLoader.load('tma16.png', function (blackTextureL) {
-  //   blackTexture = blackTextureL;
-  // });
+  function init() {
+    // load resources parallelly
+    Promise.all([
+      fetchText('assets/shaders/brush-perspective.frag'),
+      fetchText('assets/shaders/brush-perspective.vert'),
+      fetchTexture(textureLoader, 'assets/hors.png')
+    ]).then(function (loaded) {
+      var fragmentShader = loaded[0];
+      var vertexShader = loaded[1];
+      var horseeTexture = loaded[2];
 
-  // # draw line program
-  var qTextureSize = 512;
+      init2(fragmentShader, vertexShader, horseeTexture);
+    });
+  }
 
-  var qCamera = undefined;
-  var qScene = undefined;
-  var qTexture = undefined;
-  var qMaterial = undefined;
+  function init2(fragmentShader, vertexShader, horseeTexture) {
+    qCamera = new THREE.OrthographicCamera(-1.0, 1.0, 1.0, -1.0, -1.0, 1.0);
 
-  qPrepare();
+    qScene = new THREE.Scene();
 
-  var mouseButtonToDraw = 2;
-  var lastMouse = undefined;
-  var mouseDown = false;
+    qRenderTarget = new THREE.WebGLRenderTarget(textureSize, textureSize, { depthBuffer: false });
 
-  // one pixel maybe
-  // TODO: how to set spacing
-  var spacingx = 1.0 / window.innerWidth;
-  var spacingy = 1.0 / window.innerHeight;
-  var spacing = Math.pow(spacingx * spacingx + spacingy * spacingy, 0.5) * 10.0;
+    qMaterial = new THREE.ShaderMaterial({
+      vertexShader: vertexShader,
+      fragmentShader: fragmentShader,
+      uniforms: {
+        real_model_view: { value: new THREE.Matrix4() },
+        // real_normal: { value: new THREE.Matrix3() },
+        real_projection: { value: new THREE.Matrix4() },
+        brush_center: { value: THREE.Vector2(), },
+        brush_radius: { value: THREE.Vector2(), },
+        brush_type: { value: 0, },
+        brush_texture: { value: horseeTexture, },
+        depth: { value: globals.threeView.depthTexture },
+        // depth_epsilon: { value: 0.00001 }
+        depth_epsilon: { value: 69.0 }
+      },
+      transparent: true,
+      blending: THREE.CustomBlending,
+      blendEquation: THREE.AddEquation,
+      blendSrc: THREE.SrcAlphaFactor,
+      blendDst: THREE.OneMinusSrcAlphaFactor,
+      blendEquationAlpha: THREE.AddEquation,
+      blendDstAlpha: THREE.OneFactor,
+      blendSrcAlpha: THREE.ZeroFactor,
+      // blendSrc: THREE.OneFactor,
+      // blendDst: THREE.ZeroFactor,
+      side: THREE.DoubleSide,
+    });
 
-  // # interactivity
+    var geometry = globals.model.getGeometry();
+    qQuad = new THREE.Mesh(geometry, qMaterial);
+
+    qScene.add(qQuad);
+
+    globals.drawing.texture = qRenderTarget.texture;
+
+    resetControlsValues();
+
+    qClear();
+  }
+
+  function resetControlsValues() {
+    setBrushSize(initRadius);
+    setBrushType(initBrush);
+    setSpacing(initSpacing);
+  }
+
+  function qDraw() {
+    var renderer = globals.threeView.renderer;
+
+    var originalAutoClear = renderer.autoClear;
+    renderer.autoClear = false;
+
+    renderer.render(qScene, qCamera, qRenderTarget);
+
+    renderer.autoClear = originalAutoClear;
+  }
+
+  function qClear() {
+    var renderer = globals.threeView.renderer;
+
+    renderer.setRenderTarget(qRenderTarget);
+
+    renderer.setClearColor(new THREE.Color(1.0, 0.65, 0.9));
+    // renderer.setClearColor(new THREE.Color(0.0, 0.0, 0.0));
+    renderer.clear();
+  }
+
+  function saveTexture() {
+    // # copy texture from gpu
+    var textureBuffer = new Uint8Array(textureSize * textureSize * 4);
+
+    globals.threeView.renderer.readRenderTargetPixels(qRenderTarget, 0, 0, textureSize, textureSize, textureBuffer);
+
+    // # put the texture on canvas
+    var canvas = document.createElement('canvas');
+    canvas.width = textureSize;
+    canvas.height = textureSize;
+
+    var context = canvas.getContext('2d');
+    var imageData = context.createImageData(textureSize, textureSize);
+
+    for (var i = 0; i < textureSize * textureSize * 4; i++) {
+      imageData.data[i] = textureBuffer[i];
+    }
+
+    context.putImageData(imageData, 0, 0);
+
+    // # export canvas to png
+    canvas.toBlob(function (blob) {
+      saveAs(blob, 'haha.png');
+    }, 'image/png')
+  }
+
+  function updateGeometry(geometry) {
+    if (qQuad !== undefined) {
+      qQuad.geometry = geometry;
+    }
+  }
+
+  function updateMVP() {
+    var mesh = globals.model.getMesh()[0];
+
+    qMaterial.uniforms.real_model_view.value = mesh.modelViewMatrix;
+    // qMaterial.uniforms.real_normal.value = mesh.normalMatrix;
+    qMaterial.uniforms.real_projection.value = globals.threeView.camera.projectionMatrix;
+  }
+
+  function getBrushType() {
+    return qMaterial.uniforms.brush_type.value;
+  }
+
+  function setBrushType(type) {
+    qMaterial.uniforms.brush_type.value = type;
+  }
+
+  // radius: in pixels
+  function setBrushSize(radius) {
+    qMaterial.uniforms.brush_radius.value = new THREE.Vector2(2.0 * radius / window.innerWidth, 2.0 * radius / window.innerHeight);
+  }
+
+  // spacing: in pixels
+  function setSpacing(ehSpacing) {
+    spacing = ehSpacing;
+  }
+
+  // # draw
   function drawFromTo(from, to) {
     var d = to.clone().sub(from);
     var l = d.length();
@@ -149,29 +177,17 @@ function initDrawing(globals) {
   }
 
   function drawAt(mouse) {
-    raycaster.setFromCamera(mouse, globals.threeView.camera);
-
-    var intersections = raycaster.intersectObjects(globals.model.getMesh(), false);
-
-    if (intersections.length > 0) {
-      var closest = intersections[0];
-
-      var uv_x = closest.uv.x;
-      var uv_y = closest.uv.y;
-
-      qMaterial.uniforms.mouse.value = new THREE.Vector2(uv_x, uv_y);
-
-      qDraw(); // TODO: where to put this ?
-    }
-  }
-
-  function mousePos(event) {
-    return new THREE.Vector2(
-      2.0 * event.clientX / window.innerWidth - 1.0,
-      -2.0 * event.clientY / window.innerHeight + 1.0
+    var mouseClip = new THREE.Vector2(
+      2.0 * mouse.x / window.innerWidth - 1.0,
+      -2.0 * mouse.y / window.innerHeight + 1.0
     );
+
+    qMaterial.uniforms.brush_center.value = mouseClip;
+
+    qDraw(); // TODO: where to put this ?
   }
 
+  // # interaction
   function onMouseMove(event) {
     if (!globals.drawingActive) {
       return;
@@ -181,8 +197,9 @@ function initDrawing(globals) {
       return;
     }
 
-    var mouse = mousePos(event);
+    updateMVP();
 
+    var mouse = new THREE.Vector2(event.clientX, event.clientY);
     lastMouse = drawFromTo(lastMouse, mouse);
   }
 
@@ -192,8 +209,9 @@ function initDrawing(globals) {
     }
 
     if (event.button === mouseButtonToDraw) {
-      lastMouse = mousePos(event);
+      updateMVP();
 
+      lastMouse = new THREE.Vector2(event.clientX, event.clientY);
       drawAt(lastMouse);
     }
   }
@@ -204,39 +222,57 @@ function initDrawing(globals) {
     }
   }
 
-  function onKeyUp(event) {
-    if (!globals.drawingActive) {
-      return;
-    }
+  // # texture loader
+  var textureLoader = new THREE.TextureLoader();
 
-    if (event.code === 'KeyC') {
-      qClear(); // TODO: where to put this ?
-    }
-  }
+  // # q
+  var qCamera = undefined;
+  var qScene = undefined;
+  var qQuad = undefined;
+  var qRenderTarget = undefined;
+  var qMaterial = undefined;
+
+  // # interaction
+  var mouseButtonToDraw = 2;
+  var lastMouse = undefined;
+
+  // # params
+  var textureSize = 2048;
+
+  var initRadius = 50;
+  var initBrush = 3;
+  var initSpacing = 5;
+
+  var spacing = initSpacing;
+
+  // # start
+  init();
 
   document.addEventListener('mousemove', onMouseMove);
   document.addEventListener('mousedown', onMouseDown);
   document.addEventListener('mouseup', onMouseUp);
-  document.addEventListener('keyup', onKeyUp);
 
   function start() {
     globals.controls.setColorMode('texture');
   }
 
   function end() {
-    // globals.model.setMeshMaterial();
   }
-
 
   // # return
   return {
     start: start,
     end: end,
+    updateGeometry: updateGeometry,
     texture: undefined,
     controls: {
       clear: qClear,
-      setBrushType: qSetBrushType,
-      setRadius: qSetRadius,
+      resetControlsValues: resetControlsValues,
+      getBrushType: getBrushType,
+      setBrushType: setBrushType,
+      setBrushSize: setBrushSize,
+      setSpacing: setSpacing,
+      saveTexture: saveTexture,
     }
   };
 }

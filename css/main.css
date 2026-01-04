@@ -55,7 +55,7 @@ p {
 #controlsBottom {
     width: 100%;
     min-width: 975px;
-    max-width: 850px;
+    max-width: 1050px;
     margin: auto;
     position: absolute;
     bottom: 0;
@@ -171,7 +171,7 @@ p {
     width: 100%;
 }
 
-.bigToggleButBetter{
+.bigToggleButBetter {
     height:90px;
     width:210px;
     text-align: center;
@@ -179,7 +179,7 @@ p {
     font-size: 14px;
     /*border: 1px solid #34495e;*/
 }
-.bigToggleButBetter>div{
+.bigToggleButBetter > div {
     border: 2px solid #34495e;
     background: white;
     height: 70px;
@@ -187,54 +187,9 @@ p {
     border-radius: 10px;
     margin-bottom: 5px;
 }
-.bigToggleButBetter>div div{
-    padding: 5px;
-    width:33.33%;
-    height: 100%;
-    display: inline-block;
-    text-align: center;
-    font-size: 12px;
-    color: #34495e;
-}
-.bigToggleButBetter div.active{
-    background: #e8e8e8;
-}
-.bigToggleButBetter .separator{
-    width: 2px;
-    height: 68px;
-    position: absolute;
-    background: #34495e;
-    padding: 0;
-    margin: 0;
-}
-.bigToggleButBetter img{
-    display: inline-block;
-    height: 40px;
-}
-.bigToggleButBetter span{
-    display: block;
-    width: 100%;
-}
-
-.bigToggleButBetter{
-    height:90px;
-    width:210px;
-    text-align: center;
-    position: absolute;
-    font-size:14px;
-    /*border: 1px solid #34495e;*/
-}
-.bigToggle > div {
-    border: 2px solid #34495e;
-    background: white;
-    height:70px;
-    overflow: hidden;
-    border-radius: 10px;
-    margin-bottom: 5px;
-}
 .bigToggleButBetter > div div {
     padding: 5px;
-    width: 33.33%;
+    width:33.33%;
     height: 100%;
     display: inline-block;
     text-align: center;
@@ -254,11 +209,11 @@ p {
 }
 .bigToggleButBetter img {
     display: inline-block;
-    height:40px;
+    height: 40px;
 }
 .bigToggleButBetter span {
     display: block;
-    width:100%;
+    width: 100%;
 }
 
 #resetBottom {
@@ -843,4 +798,172 @@ object {
     #PackCADLink {
         display: none;
     }
+}
+
+#controlsDrawing {
+    position: absolute;
+    left: 0px;
+    width: 300px;
+    top: 53px;
+    padding: 20px 20px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    /* border-right-style: solid;
+    border-color: rgb(0, 0, 0);
+    border-width: 2px;
+    background-color: rgba(250, 250, 250, 50%);
+    background-color: rgba(10, 10, 10, 10%); */
+}
+
+.drawing-a {
+    margin: 0;
+    margin-top: 20px;
+
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.drawing-b {
+    margin: 0;
+    margin-top: 5px;
+
+    font-size: 22px;
+    font-weight: bold;
+    color: rgb(125, 125, 125);
+}
+
+.drawing-brush-grid {
+    margin-top: 15px;
+
+    display: grid;
+    grid-template-columns: repeat(4, 40px);
+    grid-auto-rows: 40px;
+}
+
+.drawing-brush-grid-item {
+    margin-top: -2px;
+    margin-left: -2px;
+
+    border-width: 2px;
+    border-style: solid;
+    border-color: rgb(75, 75, 75);
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.brush-type {
+    margin: 0;
+
+    font-size: 16px;
+    color: rgb(100, 100, 100);
+}
+
+.brush-type-image {
+    width: 38px;
+    height: 38px;
+    object-fit: contain;
+
+    padding: 5px;
+}
+
+.brush-type-image:hover {
+    background-color: rgba(150, 150, 150, 0.2);
+}
+
+.brush-type-image-active {
+    background-color: rgba(50, 50, 50, 0.2);
+}
+
+.brush-type-image-active:hover {
+    background-color: rgba(50, 50, 50, 0.2);
+}
+
+.brush-slider {
+    width: 100%;
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.brush-slider-size {
+    margin-top: 20px;
+}
+
+.brush-slider-spacing {
+    margin-top: 8px;
+}
+
+.brush-slider-slider.flat-slider {
+    flex-grow: 1;
+
+    background: rgb(232, 232, 232);
+}
+
+.brush-slider-text {
+    width: 55px;
+
+    flex-grow: 0;
+
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+.brush-slider-title {
+    margin: 0;
+
+    font-size: 14px;
+}
+
+.brush-slider-value {
+    margin: 0;
+    margin-top: 1px;
+
+    font-size: 10px;
+}
+
+.drawing-aux {
+    margin-top: 5px;
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.drawing-aux-button {
+    padding: 1px 10px;
+
+    background-color: rgb(215, 215, 215);
+    color: rgb(85, 85, 85);
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.drawing-aux-button:hover {
+    background-color: rgb(205, 205, 205);
+    color: rgb(105, 105, 105);
+}
+
+.drawing-export {
+    margin-top: 20px;
+    padding: 6px 20px;
+
+    background-color: rgb(0, 0, 0);
+    color: rgb(255, 255, 255);
+    font-weight: bold;
+}
+
+.drawing-export:hover {
+    background-color: rgb(40, 40, 40);
 }
