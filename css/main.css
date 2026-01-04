@@ -901,13 +901,21 @@ object {
     margin-top: 8px;
 }
 
-.brush-slider-slider.flat-slider {
-    flex-grow: 1;
+.brush-slider-angle {
+    margin-top: 8px;
+}
 
+.brush-slider-slider {
+    flex-grow: 1;
+}
+
+.brush-slider-slider.flat-slider {
     background: rgb(232, 232, 232);
 }
 
 .brush-slider-text {
+    margin-right: 5px;
+
     width: 55px;
 
     flex-grow: 0;

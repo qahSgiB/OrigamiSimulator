@@ -1,15 +1,18 @@
+#extension GL_OES_standard_derivatives : enable
+
 // bursh
 uniform vec2 brush_center;
 uniform vec2 brush_radius;
 uniform int brush_type;
 uniform sampler2D brush_texture;
+uniform float brush_min_angle_cos;
 
 // depth test
 uniform sampler2D depth;
 uniform float depth_epsilon;
 
+varying vec4 view_pos;
 varying vec4 ndc_pos;
-// varying vec3 ndc_normal;
 
 
 void main() {
@@ -19,6 +22,11 @@ void main() {
     if (abs(brush_pos.x) > 1.0 || abs(brush_pos.y) > 1.0) { // out of brush space
         discard;
     }
+
+    // compute normal based on derivatives
+    vec3 dx = vec3(dFdx(view_pos.x), dFdx(view_pos.y), dFdx(view_pos.z));
+    vec3 dy = vec3(dFdy(view_pos.x), dFdy(view_pos.y), dFdy(view_pos.z));
+    vec3 normal = -normalize(cross(dx, dy));
 
     // depth test
     if (depth_epsilon != -69.0) {
@@ -30,12 +38,11 @@ void main() {
         }
     }
 
-    // // orientation test
-    // vec3 normal = normalize(ndc_normal);
-    // vec3 to_eye = vec3(0.0, 0.0, -1.0) - ndc_pos.xyz;
-    // if (dot(normal, to_eye) < 0.5) { // TODO: param
-    //     discard;
-    // }
+    // orientation test
+    vec3 to_eye = normalize(-view_pos.xyz);
+    if (dot(normal, to_eye) < brush_min_angle_cos) {
+        discard;
+    }
 
     // brush
     vec4 color = vec4(0.4, 1.0, 0.8, 1.0);

@@ -40,15 +40,15 @@ function initDrawing(globals) {
       fragmentShader: fragmentShader,
       uniforms: {
         real_model_view: { value: new THREE.Matrix4() },
-        // real_normal: { value: new THREE.Matrix3() },
         real_projection: { value: new THREE.Matrix4() },
         brush_center: { value: THREE.Vector2(), },
         brush_radius: { value: THREE.Vector2(), },
         brush_type: { value: 0, },
         brush_texture: { value: horseeTexture, },
+        brush_min_angle_cos: { value: 0.0, },
         depth: { value: globals.threeView.depthTexture },
         // depth_epsilon: { value: 0.00001 }
-        depth_epsilon: { value: 69.0 }
+        depth_epsilon: { value: -69.0 }
       },
       transparent: true,
       blending: THREE.CustomBlending,
@@ -79,6 +79,7 @@ function initDrawing(globals) {
     setBrushSize(initRadius);
     setBrushType(initBrush);
     setSpacing(initSpacing);
+    setBrushMinAngle(initMinBrushAngle);
   }
 
   function qDraw() {
@@ -138,7 +139,6 @@ function initDrawing(globals) {
     var mesh = globals.model.getMesh()[0];
 
     qMaterial.uniforms.real_model_view.value = mesh.modelViewMatrix;
-    // qMaterial.uniforms.real_normal.value = mesh.normalMatrix;
     qMaterial.uniforms.real_projection.value = globals.threeView.camera.projectionMatrix;
   }
 
@@ -158,6 +158,11 @@ function initDrawing(globals) {
   // spacing: in pixels
   function setSpacing(ehSpacing) {
     spacing = ehSpacing;
+  }
+
+  // angle: in radians
+  function setBrushMinAngle(angle) {
+    qMaterial.uniforms.brush_min_angle_cos.value = Math.cos(angle);
   }
 
   // # draw
@@ -242,6 +247,7 @@ function initDrawing(globals) {
   var initRadius = 50;
   var initBrush = 3;
   var initSpacing = 5;
+  var initMinBrushAngle = Math.PI / 2.0;
 
   var spacing = initSpacing;
 
@@ -272,6 +278,7 @@ function initDrawing(globals) {
       setBrushType: setBrushType,
       setBrushSize: setBrushSize,
       setSpacing: setSpacing,
+      setBrushMinAngle: setBrushMinAngle,
       saveTexture: saveTexture,
     }
   };

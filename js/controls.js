@@ -764,6 +764,7 @@ function initControls(globals){
     });
 
     setLink("#showAdvancedOptions", function(){
+        $('#controlsDrawing').hide();
         $("#basicUI").hide();
         $("#controlsBottom").animate({
             bottom: "-140px"
@@ -787,6 +788,8 @@ function initControls(globals){
         });
         $("#controlsLeft").animate({
             left: "-420px"
+        }, function() {
+            $('#controlsDrawing').show();
         });
     });
 
@@ -827,6 +830,12 @@ function initControls(globals){
         $('#brush-spacing-value').text(spacing + ' px');
     });
 
+    setSlider("#brush-angle", 90, 0, 180, 5, function (angle) {
+        globals.drawing.controls.setBrushMinAngle((180 - angle) * Math.PI / 180.0);
+
+        $('#brush-angle-value').text((180 - angle) + '°');
+    });
+
     setLink("#drawing-export", function () {
         globals.drawing.controls.saveTexture();
     });
@@ -846,6 +855,9 @@ function initControls(globals){
 
         $("#brush-spacing").slider('value', 5);
         $('#brush-spacing-value').text('5 px');
+
+        $("#brush-angle").slider('value', 90);
+        $('#brush-angle-value').text('90°');
 
         $(oldBrushClass).removeClass("brush-type-image-active");
         var brushClass = brushTypeClass(globals.drawing.controls.getBrushType());
