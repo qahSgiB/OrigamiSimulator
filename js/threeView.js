@@ -8,9 +8,41 @@ function initThreeView(globals) {
     var modelWrapper = new THREE.Object3D();
 
     var camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 500);
-    // var camera = new THREE.OrthographicCamera(window.innerWidth / -2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / -2, -10000, 10000);//-40, 40);
-    var renderer = new THREE.WebGLRenderer({antialias: true});
-    // var svgRenderer = new THREE.SVGRenderer();
+    // var aspect = window.innerHeight/window.innerWidth;
+    // var b = 5;
+    // var camera = new THREE.OrthographicCamera(-b, b, -b * aspect, b * aspect, 0.1, 500);
+
+    var renderer = new THREE.WebGLRenderer({ antialias: false });
+
+    var ssaaSamples = 2;
+
+    var depthTexture = new THREE.DepthTexture(window.innerWidth * ssaaSamples, window.innerHeight * ssaaSamples, THREE.UnsignedIntType);
+    var renderTarget = new THREE.WebGLRenderTarget(window.innerWidth * ssaaSamples, window.innerHeight * ssaaSamples, { depthTexture: depthTexture });
+
+    globals.d.renderTarget = renderTarget;
+
+    // # offscreen copy to screen
+    // TODO: names
+    var vertexShader = document.getElementById("textureToScreenVert").text;
+    var fragmentShader = document.getElementById("textureToScreenFrag").text;
+
+    var offscreenMaterial = new THREE.ShaderMaterial({
+      vertexShader: vertexShader,
+      fragmentShader: fragmentShader,
+      uniforms: {
+        from_texture: { value: renderTarget.texture },
+        sample_delta: { value: new THREE.Vector2(1.0 / (window.innerWidth * ssaaSamples), 1.0 / (window.innerHeight * ssaaSamples)) },
+        sample_count: { value: ssaaSamples },
+      },
+      side: THREE.DoubleSide,
+    });
+
+    var offscreenCamera = new THREE.OrthographicCamera(-1.0, 1.0, 1.0, -1.0, 1.0, 10.0);
+    var offscreenGeometry = new THREE.PlaneGeometry(2.0, 2.0);
+    var offscreenQuad = new THREE.Mesh(offscreenGeometry, offscreenMaterial);
+    var offscreenScene = new THREE.Scene();
+    offscreenScene.add(offscreenQuad);
+
     var controls;
 
     init();
@@ -109,7 +141,14 @@ function initThreeView(globals) {
             globals.vive.render();
             return;
         }
-        renderer.render(scene, camera);
+
+        if (globals.d.sp) {
+            renderer.render(scene, camera);
+        } else {
+            renderer.render(scene, camera, renderTarget);
+            renderer.render(offscreenScene, offscreenCamera);
+        }
+
         if (globals.capturer) {
             if (globals.capturer == "png"){
                 var canvas = globals.threeView.renderer.domElement;
@@ -168,7 +207,15 @@ function initThreeView(globals) {
 
         var scale = 1;
         if (globals.shouldScaleCanvas) scale = globals.capturerScale;
-        renderer.setSize(scale*window.innerWidth, scale*window.innerHeight);
+
+        var width = window.innerWidth;
+        var height = window.innerHeight;
+
+        renderTarget.setSize(width * ssaaSamples, height * ssaaSamples);
+        renderer.setSize(width, height);
+
+        offscreenMaterial.uniforms.delta.value = new THREE.Vector2(1.0 / (width * ssaaSamples), 1.0 / (height * ssaaSamples));
+
         controls.handleResize();
     }
 
@@ -241,6 +288,8 @@ function initThreeView(globals) {
 
         resetModel: resetModel,//reset model orientation
         resetCamera:resetCamera,
-        setBackgroundColor: setBackgroundColor
+        setBackgroundColor: setBackgroundColor,
+
+        depthTexture: depthTexture
     }
 }

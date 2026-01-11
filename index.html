@@ -743,6 +743,52 @@
         }
     </script>
 
+    <!-- TODO: different way to load -->
+    <script id="textureToScreenVert" type="x-shader/x-vertex">
+        varying vec2 vUv;
+
+
+        void main() {
+            vUv = position.xy * 0.5 + 0.5;
+            gl_Position = vec4(position, 1.0);
+        }
+    </script>
+    <script id="textureToScreenFrag" type="x-shader/x-fragment">
+        uniform sampler2D from_texture;
+        uniform vec2 sample_delta;
+        uniform int sample_count;
+
+        varying vec2 vUv;
+
+
+        void main() {
+            float sample_count_f = float(sample_count);
+
+            vec2 sample_start = vUv;
+
+            vec4 color = vec4(0.0);
+
+            for (int dy = 0; dy < 4; dy++) {
+                if (dy >= sample_count) {
+                    break;
+                }
+
+                for (int dx = 0; dx < 4; dx++) {
+                        if (dx >= sample_count) {
+                        break;
+                    }
+
+                    vec2 sample = sample_start + vec2(dx, dy) * sample_delta;
+                    color += texture2D(from_texture, sample);
+                }
+            }
+
+            color /= sample_count_f * sample_count_f;
+
+            gl_FragColor = color;
+        }
+    </script>
+
     <script type="text/javascript" src="dependencies/jquery-3.2.1.min.js"></script>
     <script type="text/javascript" src="dependencies/jquery-ui.min.js"></script>
     <script type="text/javascript" src="dependencies/flat-ui.min.js"></script>
