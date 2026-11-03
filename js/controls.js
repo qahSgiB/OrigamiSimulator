@@ -3,24 +3,23 @@
  */
 
 
-function initControls(globals){
-
-    window.addEventListener('resize', function(){
+function initControls(globals) {
+    window.addEventListener('resize', function() {
         if (globals.capturer) return;
         globals.threeView.onWindowResize();
         updateCanvasDimensions();
     }, false);
 
-    $("#logo").mouseenter(function(){
+    $("#logo").mouseenter(function() {
         $("#activeLogo").show();
         $("#inactiveLogo").hide();
     });
-    $("#logo").mouseleave(function(){
+    $("#logo").mouseleave(function() {
         $("#inactiveLogo").show();
         $("#activeLogo").hide();
     });
 
-    $(".author").hover(function(e){
+    $(".author").hover(function(e) {
         var $target = $(e.target);
         var $moreInfo = $("#authorMoreInfo");
         if (!$target.hasClass("demo")) {
@@ -42,21 +41,21 @@ function initControls(globals){
         $moreInfo.show();
         $target.parent().append($moreInfo);
     });
-    $(".author").mouseout(function(e){
+    $(".author").mouseout(function(e) {
         var $moreInfo = $("#authorMoreInfo");
         if ($(e.target).parent().is(":hover")) return;
         if ($moreInfo.is(":hover")) return;
         $moreInfo.hide();
     });
-    $("#authorMoreInfo").mouseout(function(e){
+    $("#authorMoreInfo").mouseout(function(e) {
         var $moreInfo = $("#authorMoreInfo");
         if ($moreInfo.is(":hover")) return;
         if ($moreInfo.find("#element:hover").length>0) return;
         $moreInfo.hide();
     });
 
-    setLink("#menuVis", function(){
-        if (globals.menusVisible){
+    setLink("#menuVis", function() {
+        if (globals.menusVisible) {
             $("#controls").fadeOut();
             $("#controlsLeft").fadeOut();
             $("#creasePercentNav").fadeIn();
@@ -69,42 +68,42 @@ function initControls(globals){
     });
     $("#controls").fadeIn();
 
-    setLink("#about", function(){
+    setLink("#about", function() {
         $('#aboutModal').modal('show');
     });
-    setLink("#aboutCorner", function(){
+    setLink("#aboutCorner", function() {
         $('#aboutModal').modal('show');
     });
-    setLink("#tips", function(){
+    setLink("#tips", function() {
         $('#tipsModal').modal('show');
     });
-    setLink("#aboutAnimation", function(){
+    setLink("#aboutAnimation", function() {
         $('#aboutAnimationModal').modal('show');
     });
 
-    setLink("#cameraX", function(){
+    setLink("#cameraX", function() {
         globals.threeView.setCameraX(1);
     });
-    setLink("#cameraY", function(){
+    setLink("#cameraY", function() {
         globals.threeView.setCameraY(1);
     });
-    setLink("#cameraZ", function(){
+    setLink("#cameraZ", function() {
         globals.threeView.setCameraZ(1);
     });
-    setLink("#cameraMinusX", function(){
+    setLink("#cameraMinusX", function() {
         globals.threeView.setCameraX(-1);
     });
-    setLink("#cameraMinusY", function(){
+    setLink("#cameraMinusY", function() {
         globals.threeView.setCameraY(-1);
     });
-    setLink("#cameraMinusZ", function(){
+    setLink("#cameraMinusZ", function() {
         globals.threeView.setCameraZ(-1);
     });
-    setLink("#cameraIso", function(){
+    setLink("#cameraIso", function() {
         globals.threeView.setCameraIso();
     });
 
-    setLink("#exportFOLD", function(){
+    setLink("#exportFOLD", function() {
         updateDimensions();
         $("#foldFilename").val(globals.filename + " : " + parseInt(globals.creasePercent*100) +  "PercentFolded");
         var units = globals.foldUnits;
@@ -112,113 +111,113 @@ function initControls(globals){
         $(".unitsDisplay").html(units);
         $('#exportFOLDModal').modal('show');
     });
-    setLink("#exportSTL", function(){
+    setLink("#exportSTL", function() {
         updateDimensions();
         $("#stlFilename").val(globals.filename + " : " + parseInt(globals.creasePercent*100) +  "PercentFolded");
         $('#exportSTLModal').modal('show');
     });
-    setLink("#exportOBJ", function(){
+    setLink("#exportOBJ", function() {
         updateDimensions();
         $("#objFilename").val(globals.filename + " : " + parseInt(globals.creasePercent*100) +  "PercentFolded");
         $('#exportOBJModal').modal('show');
     });
-    setInput(".exportScale", globals.exportScale, function(val){
+    setInput(".exportScale", globals.exportScale, function(val) {
         globals.exportScale = val;
         updateDimensions();
     }, 0);
-    function updateDimensions(){
+    function updateDimensions() {
         var dim = globals.model.getDimensions();
         dim.multiplyScalar(globals.exportScale/globals.scale);
         $(".exportDimensions").html(dim.x.toFixed(2) + " x " + dim.y.toFixed(2) + " x " + dim.z.toFixed(2));
     }
-    setCheckbox("#doublesidedSTL", globals.doublesidedSTL, function(val){
+    setCheckbox("#doublesidedSTL", globals.doublesidedSTL, function(val) {
         globals.doublesidedSTL = val;
     });
-    setCheckbox("#doublesidedOBJ", globals.doublesidedOBJ, function(val){
+    setCheckbox("#doublesidedOBJ", globals.doublesidedOBJ, function(val) {
         globals.doublesidedOBJ = val;
     });
-    setCheckbox("#polyFacesOBJ", globals.polyFacesOBJ, function(val){
+    setCheckbox("#polyFacesOBJ", globals.polyFacesOBJ, function(val) {
         globals.polyFacesOBJ = val;
     });
-    setLink(".units", function(e){
+    setLink(".units", function(e) {
         var units = $(e.target).data("id");
         globals.foldUnits = units;
         if (units == "unit") units = "unitless";
         $(".unitsDisplay").html(units);
     });
-    setCheckbox("#triangulateFOLDexport", globals.triangulateFOLDexport, function(val){
+    setCheckbox("#triangulateFOLDexport", globals.triangulateFOLDexport, function(val) {
         globals.triangulateFOLDexport = val;
     });
-    setCheckbox("#exportFoldAngle", globals.exportFoldAngle, function(val){
+    setCheckbox("#exportFoldAngle", globals.exportFoldAngle, function(val) {
         globals.exportFoldAngle = val;
     });
 
-    setLink("#doSTLsave", function(){
+    setLink("#doSTLsave", function() {
         saveSTL();
     });
-    setLink("#doOBJsave", function(){
+    setLink("#doOBJsave", function() {
         saveOBJ();
     });
-    setLink("#doFOLDsave", function(){
+    setLink("#doFOLDsave", function() {
         saveFOLD();
     });
 
-    setLink("#rotateX", function(){
+    setLink("#rotateX", function() {
         globals.threeView.resetModel();
         globals.rotateModel = "x";
     });
-    setLink("#rotateY", function(){
+    setLink("#rotateY", function() {
         globals.threeView.resetModel();
         globals.rotateModel = "y";
     });
-    setLink("#rotateZ", function(){
+    setLink("#rotateZ", function() {
         globals.threeView.resetModel();
         globals.rotateModel = "z";
     });
-    setLink("#stopRotation", function(){
+    setLink("#stopRotation", function() {
         globals.rotateModel = null;
         globals.threeView.resetModel();
     });
-    setLink("#changeRotationSpeed", function(){
+    setLink("#changeRotationSpeed", function() {
         $("#changeRotationSpeedModal").modal("show");
     });
-    setInput("#rotationSpeed", globals.rotationSpeed, function(val){
+    setInput("#rotationSpeed", globals.rotationSpeed, function(val) {
         globals.rotationSpeed = val;
     });
 
-    setLink("#changeBackground", function(){
+    setLink("#changeBackground", function() {
         $("#changeBackgroundModal").modal("show");
     });
-    setHexInput("#backgroundColor", globals.backgroundColor, function(val){
+    setHexInput("#backgroundColor", globals.backgroundColor, function(val) {
         globals.backgroundColor = val;
         globals.threeView.setBackgroundColor();
     });
 
-    setLink("#importSettings", function(){
+    setLink("#importSettings", function() {
         $("#vertTol").val(globals.vertTol);
         $("#curvedLines").val(globals.includeCurves);
         $("#vertInt").val(globals.vertInt);
         $("#apprCurve").val(globals.apprCurve);
         $("#importSettingsModal").modal("show");
     });
-    setInput("#vertTol", globals.vertTol, function(val){
+    setInput("#vertTol", globals.vertTol, function(val) {
         globals.vertTol = val;
     });
-    setCheckbox("#curvedLines", globals.includeCurves, function(val){
+    setCheckbox("#curvedLines", globals.includeCurves, function(val) {
         globals.includeCurves = val;
         if (val) $("#curvedCreaseImportOptions").show();
         else $("#curvedCreaseImportOptions").hide();
     });
     if (globals.includeCurves) $("#curvedCreaseImportOptions").show();
     else $("#curvedCreaseImportOptions").hide();
-    setInput("#vertInt", globals.vertInt, function(val){
+    setInput("#vertInt", globals.vertInt, function(val) {
         globals.vertInt = val;
     });
-    setInput("#apprCurve", globals.apprCurve, function(val){
+    setInput("#apprCurve", globals.apprCurve, function(val) {
         globals.apprCurve = val;
     });
 
-    setLink("#createGif", function(){
+    setLink("#createGif", function() {
         globals.shouldScaleCanvas = true;
         $("#screenCaptureModal .video").hide();
         $("#screenCaptureModal .png").hide();
@@ -229,7 +228,7 @@ function initControls(globals){
         globals.threeView.onWindowResize();
         updateCanvasDimensions();
     });
-    setLink("#createPNG", function(){
+    setLink("#createPNG", function() {
         globals.shouldScaleCanvas = true;
         $("#screenCaptureModal .gif").hide();
         $("#screenCaptureModal .video").hide();
@@ -240,14 +239,14 @@ function initControls(globals){
         globals.threeView.onWindowResize();
         updateCanvasDimensions();
     });
-    setLink("#createVideo", function(){
+    setLink("#createVideo", function() {
         var hasWebP = false;
         (function() {
           var img = new Image();
           img.onload = function() {
             hasWebP = !!(img.height > 0 && img.width > 0);
-              if (hasWebP){
-                  //timeLimit: s of video to limit
+              if (hasWebP) {
+                  // timeLimit: s of video to limit
                 $("#screenCaptureModal .gif").hide();
                 $("#screenCaptureModal .png").hide();
                 $("#screenCaptureModal .video").show();
@@ -267,39 +266,39 @@ function initControls(globals){
         })();
 
     });
-    $("#screenCaptureModal").on('hidden.bs.modal', function (){
+    $("#screenCaptureModal").on('hidden.bs.modal', function () {
         if (globals.capturer) return;
         globals.shouldScaleCanvas = false;
         globals.threeView.onWindowResize();
     });
-    $("#screenCaptureModal").on('shown.bs.modal', function (){
-        globals.shouldScaleCanvas = true;//fixes problem of setting animation turning off shouldScaleCanvas
+    $("#screenCaptureModal").on('shown.bs.modal', function () {
+        globals.shouldScaleCanvas = true; // fixes problem of setting animation turning off shouldScaleCanvas
         globals.threeView.onWindowResize();
         updateCanvasDimensions();
     });
-    setInput("#capturerFPS", globals.capturerFPS, function(val){
+    setInput("#capturerFPS", globals.capturerFPS, function(val) {
         globals.capturerFPS = val;
     }, 0, 60);
-    setInput("#gifFPS", globals.gifFPS, function(val){
+    setInput("#gifFPS", globals.gifFPS, function(val) {
         globals.gifFPS = val;
     }, 0, 60);
-    setInput("#capturerQuality", globals.capturerQuality, function(val){
+    setInput("#capturerQuality", globals.capturerQuality, function(val) {
         globals.capturerQuality = val;
     }, 0, 63);
-    setInput("#capturerScale", globals.capturerScale, function(val){
+    setInput("#capturerScale", globals.capturerScale, function(val) {
         globals.capturerScale = val;
         globals.threeView.onWindowResize();
         updateCanvasDimensions();
     }, 1);
-    function updateCanvasDimensions(){
+    function updateCanvasDimensions() {
         var dim = (new THREE.Vector2(window.innerWidth, window.innerHeight)).multiplyScalar(globals.capturerScale);
         $("#canvasDimensions").html(dim.x + " x " + dim.y + " px");
     }
-    setInput("#screenRecordFilename", "OrigamiSimulator", function(val){
+    setInput("#screenRecordFilename", "OrigamiSimulator", function(val) {
         globals.screenRecordFilename = val;
     });
 
-    setLink("#doScreenRecord", function(){
+    setLink("#doScreenRecord", function() {
         globals.capturerFrames = 0;
         globals.capturer = new CCapture({
             format:'webm',
@@ -319,11 +318,11 @@ function initControls(globals){
             globals.videoAnimator.compile();
         }
     });
-    setLink("#doPNGCapture", function(){
+    setLink("#doPNGCapture", function() {
         globals.shouldScaleCanvas = false;
         globals.capturer = "png";
     });
-    setLink("#doGifRecord", function(){
+    setLink("#doGifRecord", function() {
         globals.capturerFrames = 0;
         globals.capturer = new CCapture({
             format:'gif',
@@ -343,7 +342,7 @@ function initControls(globals){
         }
     });
 
-    setLink("#stopRecord", function(){
+    setLink("#stopRecord", function() {
         if (!globals.capturer) return;
         if (globals.isGif) globals.warn("Processing GIF, may take a few minutes...  <br/>(you can close this window in the meantime)<br/><br/> GIFs exported from this app are not highly compressed, " +
             "you can decrease their file size using a GIF editor.  " +
@@ -362,8 +361,8 @@ function initControls(globals){
     });
 
 
-    setLink("#navPattern", function(){
-        if (globals.noCreasePatternAvailable()){
+    setLink("#navPattern", function() {
+        if (globals.noCreasePatternAvailable()) {
             globals.warn("No crease pattern available.");
             return;
         }
@@ -377,7 +376,7 @@ function initControls(globals){
     });
     $("#navSimulation").parent().addClass("open");
     $("#navPattern").parent().removeClass("open");
-    setLink("#navSimulation", function(){
+    setLink("#navSimulation", function() {
         if (globals.navMode == "simulation") return;
         globals.navMode = "simulation";
         if (globals.pausedForPatternView) globals.model.resume();
@@ -386,11 +385,11 @@ function initControls(globals){
         $("#svgViewer").hide();
     });
 
-    setLink(".seeMore", function(e){
+    setLink(".seeMore", function(e) {
         var $target = $(e.target);
         if (!$target.hasClass("seeMore")) $target = $target.parent();
         var $div = $("#"+ $target.data("id"));
-        if ($target.hasClass("closed")){
+        if ($target.hasClass("closed")) {
             $target.removeClass("closed");
             $target.addClass("open");
             AnimateRotate(-90, 0, $target.children("span"));
@@ -420,86 +419,86 @@ function initControls(globals){
         });
     }
 
-    setLink(".goToImportInstructions", function(){
+    setLink(".goToImportInstructions", function() {
        $("#aboutModal").modal("hide");
         $("#importSettingsModal").modal("hide");
         $("#tipsModal").modal("show");
     });
 
-    setLink("#goToViveInstructions", function(){
+    setLink("#goToViveInstructions", function() {
        $("#aboutModal").modal("hide");
         $("#aboutVRmodal").modal("show");
     });
 
-    setRadio("integrationType", globals.integrationType, function(val){
+    setRadio("integrationType", globals.integrationType, function(val) {
         globals.dynamicSolver.reset();
         globals.integrationType = val;
     });
 
 
-    setRadio("simType", globals.simType, function(val){
+    setRadio("simType", globals.simType, function(val) {
         globals.simType = val;
         globals.simNeedsSync = true;
     });
 
-    setSliderInput("#axialStiffness", globals.axialStiffness, 10, 100, 1, function(val){
+    setSliderInput("#axialStiffness", globals.axialStiffness, 10, 100, 1, function(val) {
         globals.axialStiffness = val;
         globals.materialHasChanged = true;
     });
 
-    setSliderInput("#faceStiffness", globals.faceStiffness, 0, 5, 0.01, function(val){
+    setSliderInput("#faceStiffness", globals.faceStiffness, 0, 5, 0.01, function(val) {
         globals.faceStiffness = val;
         globals.materialHasChanged = true;
     });
 
-    setSliderInput("#creaseStiffness", globals.creaseStiffness, 0, 3, 0.01, function(val){
+    setSliderInput("#creaseStiffness", globals.creaseStiffness, 0, 3, 0.01, function(val) {
         globals.creaseStiffness = val;
         globals.creaseMaterialHasChanged = true;
     });
 
-    setSliderInput("#panelStiffness", globals.panelStiffness, 0, 3, 0.01, function(val){
+    setSliderInput("#panelStiffness", globals.panelStiffness, 0, 3, 0.01, function(val) {
         globals.panelStiffness = val;
         globals.creaseMaterialHasChanged = true;
     });
 
-    setSliderInput("#percentDamping", globals.percentDamping, 0.01, 0.5, 0.01, function(val){
+    setSliderInput("#percentDamping", globals.percentDamping, 0.01, 0.5, 0.01, function(val) {
         globals.percentDamping = val;
         globals.materialHasChanged = true;
     });
 
-    var creasePercentSlider = setSliderInput("#creasePercent", globals.creasePercent*100, -100, 100, 1, function(val){
+    var creasePercentSlider = setSliderInput("#creasePercent", globals.creasePercent*100, -100, 100, 1, function(val) {
         globals.creasePercent = val/100;
         globals.shouldChangeCreasePercent = true;
         updateCreasePercent();
     });
-    var creasePercentNavSlider = setSlider("#creasePercentNav>div", globals.creasePercent*100, -100, 100, 1, function(val){
+    var creasePercentNavSlider = setSlider("#creasePercentNav>div", globals.creasePercent*100, -100, 100, 1, function(val) {
         globals.creasePercent = val/100;
         globals.shouldChangeCreasePercent = true;
         updateCreasePercent();
     });
-    var creasePercentBottomSlider = setSlider("#creasePercentBottom>div", globals.creasePercent*100, 0, 100, 1, function(val){
+    var creasePercentBottomSlider = setSlider("#creasePercentBottom>div", globals.creasePercent*100, 0, 100, 1, function(val) {
         globals.creasePercent = val/100;
         globals.shouldChangeCreasePercent = true;
         updateCreasePercent()
     });
-    setInput("#currentFoldPercent", globals.creasePercent*100, function(val){
+    setInput("#currentFoldPercent", globals.creasePercent*100, function(val) {
         globals.creasePercent = val/100;
         globals.shouldChangeCreasePercent = true;
         updateCreasePercent();
     }, -100, 100);
 
-    setLink("#flatIndicator", function(){
+    setLink("#flatIndicator", function() {
         globals.creasePercent = 0;
         globals.shouldChangeCreasePercent = true;
         updateCreasePercent();
     });
-    setLink("#foldedIndicator", function(){
+    setLink("#foldedIndicator", function() {
         globals.creasePercent = 1;
         globals.shouldChangeCreasePercent = true;
         updateCreasePercent();
     });
 
-    function updateCreasePercent(){
+    function updateCreasePercent() {
         var val = (globals.creasePercent*100);
         creasePercentSlider.slider('value', val);
         creasePercentNavSlider.slider('value', val);
@@ -510,16 +509,16 @@ function initControls(globals){
     }
     updateCreasePercent();
 
-    function setDeltaT(val){
+    function setDeltaT(val) {
         $("#deltaT").html(val.toFixed(4));
     }
 
-    setLink(".loadFile", function(e){
+    setLink(".loadFile", function(e) {
         $("#fileSelector").click();
         $(e.target).blur();
     });
 
-    setLink(".demo", function(e){
+    setLink(".demo", function(e) {
         var $target = $(e.target);
         var url = $target.data("url");
         if (url) {
@@ -537,29 +536,29 @@ function initControls(globals){
         }
     });
 
-    setLink("#setupAnimation", function(){
+    setLink("#setupAnimation", function() {
         $("#screenCaptureModal").modal("hide");
         $("#animationSetupModal").modal("show");
     });
 
-    setLink("#saveSVGScreenshot", function(){
+    setLink("#saveSVGScreenshot", function() {
         globals.threeView.saveSVG();
     });
 
-    setLink("#saveSVG", function(){
+    setLink("#saveSVG", function() {
         globals.pattern.saveSVG();
     });
-    setLink("#addAnimationItem", function(){
+    setLink("#addAnimationItem", function() {
         globals.videoAnimator.addItem();
     });
-    setLink("#addDelay", function(){
+    setLink("#addDelay", function() {
         globals.videoAnimator.addDelay();
     });
-    $("#animationSetupModal").on('hidden.bs.modal', function (){
+    $("#animationSetupModal").on('hidden.bs.modal', function () {
         $("#screenCaptureModal").modal("show");
     });
 
-    setCheckbox("#ambientOcclusion", globals.ambientOcclusion, function(val){
+    setCheckbox("#ambientOcclusion", globals.ambientOcclusion, function(val) {
         globals.ambientOcclusion = val;
     });
 
@@ -568,7 +567,7 @@ function initControls(globals){
     if (globals.colorMode == "axialStrain") $("#axialStrainMaterialOptions").show();
     else $("#axialStrainMaterialOptions").hide();
 
-    function setColorMode(val){
+    function setColorMode(val) {
         globals.colorMode = val;
         if (val == "color") {
             $("#coloredMaterialOptions").show();
@@ -593,116 +592,116 @@ function initControls(globals){
         globals.model.setMeshMaterial();
     }
     setRadio("colorMode", globals.colorMode, setColorMode);
-    setLink("#colorToggle", function(){
+    setLink("#colorToggle", function() {
         setColorMode("color");
     });
-    setLink("#strainToggle", function(){
+    setLink("#strainToggle", function() {
         setColorMode("axialStrain");
     });
-    setLink("#textureToggle", function(){
+    setLink("#textureToggle", function() {
         setColorMode("texture");
     });
 
-    setHexInput("#color1", globals.color1, function(val){
+    setHexInput("#color1", globals.color1, function(val) {
         globals.color1 = val;
         globals.model.setMeshMaterial();
     });
-    setHexInput("#color2", globals.color2, function(val){
+    setHexInput("#color2", globals.color2, function(val) {
         globals.color2 = val;
         globals.model.setMeshMaterial();
     });
 
-    setCheckbox("#edgesVisible", globals.edgesVisible, function(val){
+    setCheckbox("#edgesVisible", globals.edgesVisible, function(val) {
         globals.edgesVisible = val;
         if (globals.edgesVisible) $("#edgeVisOptions").show();
         else $("#edgeVisOptions").hide();
         globals.model.updateEdgeVisibility();
     });
-    setCheckbox("#mtnsVisible", globals.mtnsVisible, function(val){
+    setCheckbox("#mtnsVisible", globals.mtnsVisible, function(val) {
         globals.mtnsVisible = val;
         globals.model.updateEdgeVisibility();
     });
-    setCheckbox("#valleysVisible", globals.valleysVisible, function(val){
+    setCheckbox("#valleysVisible", globals.valleysVisible, function(val) {
         globals.valleysVisible = val;
         globals.model.updateEdgeVisibility();
     });
-    setCheckbox("#panelsVisible", globals.panelsVisible, function(val){
+    setCheckbox("#panelsVisible", globals.panelsVisible, function(val) {
         globals.panelsVisible = val;
         globals.model.updateEdgeVisibility();
     });
-    setCheckbox("#passiveEdgesVisible", globals.passiveEdgesVisible, function(val){
+    setCheckbox("#passiveEdgesVisible", globals.passiveEdgesVisible, function(val) {
         globals.passiveEdgesVisible = val;
         globals.model.updateEdgeVisibility();
     });
-    setCheckbox("#boundaryEdgesVisible", globals.boundaryEdgesVisible, function(val){
+    setCheckbox("#boundaryEdgesVisible", globals.boundaryEdgesVisible, function(val) {
         globals.boundaryEdgesVisible = val;
         globals.model.updateEdgeVisibility();
     });
 
-    setCheckbox("#meshVisible", globals.meshVisible, function(val){
+    setCheckbox("#meshVisible", globals.meshVisible, function(val) {
         globals.meshVisible = val;
         globals.model.updateMeshVisibility();
         if (globals.meshVisible) $("#meshMaterialOptions").show();
         else $("#meshMaterialOptions").hide();
     });
 
-    setLink("#aboutError", function(){
+    setLink("#aboutError", function() {
         $("#aboutErrorModal").modal("show");
     });
-    setLink("#aboutStiffness", function(){
+    setLink("#aboutStiffness", function() {
         $("#aboutStiffnessModal").modal("show");
     });
-    setLink("#aboutDynamicSim", function(){
+    setLink("#aboutDynamicSim", function() {
         $("#aboutDynamicSimModal").modal("show");
     });
-    setLink("#aboutStaticSim", function(){
+    setLink("#aboutStaticSim", function() {
         $("#aboutStaticSimModal").modal("show");
     });
-    setLink("#aboutRigidSim", function(){
+    setLink("#aboutRigidSim", function() {
         $("#aboutRigidSimModal").modal("show");
     });
-    setLink("#aboutAxialStrain", function(){
+    setLink("#aboutAxialStrain", function() {
         $("#aboutAxialStrainModal").modal("show");
     });
-    setLink("#aboutVR", function(){
+    setLink("#aboutVR", function() {
         $("#aboutVRmodal").modal("show");
     });
 
-    setCheckbox("#vrEnabled", globals.vrEnabled, function(val){
+    setCheckbox("#vrEnabled", globals.vrEnabled, function(val) {
         globals.vrEnabled = val;
     });
 
-    setLink("#start", function(){
+    setLink("#start", function() {
         $("#pause").css('display', 'inline-block');
         $("#reset").css('display', 'inline-block');
         $("#start").hide();
         $("#stepForwardOptions").hide();
         globals.model.resume();
     });
-    setLink("#pause", function(){
+    setLink("#pause", function() {
         $("#start").css('display', 'inline-block');
         $("#stepForwardOptions").css('display', 'inline-block');
         $("#pause").hide();
         globals.model.pause();
     });
-    setLink("#reset", function(){
+    setLink("#reset", function() {
         if (!globals.simulationRunning) $("#reset").hide();
         globals.model.reset();
     });
-    setLink("#resetBottom", function(){
+    setLink("#resetBottom", function() {
         globals.model.reset();
     });
-    setLink("#stepForward", function(){
+    setLink("#stepForward", function() {
         globals.model.step(globals.numSteps);
         $("#reset").css('display', 'inline-block');
     });
 
-    setInput("#strainClip", globals.strainClip, function(val){
+    setInput("#strainClip", globals.strainClip, function(val) {
         globals.strainClip = val;
     }, 0.0001, 100);
 
     setCheckbox($("#userInteractionEnabled"), globals.userInteractionEnabled, enableInteraction);
-    function enableInteraction(val){
+    function enableInteraction(val) {
         setMode(val ? 'grab' : 'orbit');
     }
     function setMode(mode) {
@@ -737,38 +736,38 @@ function initControls(globals){
             globals.drawing.start();
         }
     }
-    setLink("#grabToggle", function(){
+    setLink("#grabToggle", function() {
         setMode('grab');
     });
-    setLink("#orbitToggle", function(){
+    setLink("#orbitToggle", function() {
         setMode('orbit');
     });
-    setLink("#drawToggle", function(){
+    setLink("#drawToggle", function() {
         setMode('draw');
     });
 
-    setCheckbox($("#foldUseAngles"), globals.foldUseAngles, function(val){
+    setCheckbox($("#foldUseAngles"), globals.foldUseAngles, function(val) {
         globals.foldUseAngles = val;
     });
 
-    setLink("#shouldCenterGeo", function(){
+    setLink("#shouldCenterGeo", function() {
         globals.shouldCenterGeo = true;
     });
 
-    setInput(".numStepsPerRender", globals.numSteps, function(val){
+    setInput(".numStepsPerRender", globals.numSteps, function(val) {
         globals.numSteps = val;
     }, 1);
 
-    setLink("#aboutUserInteraction", function(){
+    setLink("#aboutUserInteraction", function() {
         $('#aboutUserInteractionModal').modal('show');
     });
 
-    setLink("#showAdvancedOptions", function(){
+    setLink("#showAdvancedOptions", function() {
         $('#controlsDrawing').hide();
         $("#basicUI").hide();
         $("#controlsBottom").animate({
             bottom: "-140px"
-        }, function(){
+        }, function() {
             $("#controls").animate({
             right: 0
             });
@@ -777,10 +776,10 @@ function initControls(globals){
             });
         });
     });
-    setLink("#hideAdvancedOptions", function(){
+    setLink("#hideAdvancedOptions", function() {
         $("#controls").animate({
             right: "-430px"
-        }, function(){
+        }, function() {
             $("#basicUI").fadeIn();
             $("#controlsBottom").animate({
                 bottom: 0
@@ -793,7 +792,7 @@ function initControls(globals){
         });
     });
 
-    setLink("#exampleMenuButton", function(){
+    setLink("#exampleMenuButton", function() {
         $("#helper").hide();
     });
 
@@ -976,8 +975,8 @@ function initControls(globals){
     });
 
 
-    function setButtonGroup(id, callback){
-        $(id+" a").click(function(e){
+    function setButtonGroup(id, callback) {
+        $(id+" a").click(function(e) {
             e.preventDefault();
             var $target = $(e.target);
             var val = $target.data("id");
@@ -988,14 +987,14 @@ function initControls(globals){
         });
     }
 
-    function setLink(id, callback){
-        $(id).click(function(e){
+    function setLink(id, callback) {
+        $(id).click(function(e) {
             e.preventDefault();
             callback(e);
         });
     }
 
-    function setRadio(name, val, callback){
+    function setRadio(name, val, callback) {
         $("input[name=" + name + "]").on('change', function() {
             var state = $("input[name="+name+"]:checked").val();
             callback(state);
@@ -1003,16 +1002,16 @@ function initControls(globals){
         $(".radio>input[value="+val+"]").prop("checked", true);
     }
 
-    function setInput(id, val, callback, min, max){
+    function setInput(id, val, callback, min, max) {
         var $input = $(id);
-        $input.change(function(){
+        $input.change(function() {
             var $this = $(this);
-            if ($input.length == 1) $this = $input;//probably not necessary
+            if ($input.length == 1) $this = $input; // probably not necessary
             var val = $this.val();
-            if ($this.hasClass("int")){
+            if ($this.hasClass("int")) {
                 if (isNaN(parseInt(val))) return;
                 val = parseInt(val);
-            } else if ($this.hasClass("text")){
+            } else if ($this.hasClass("text")) {
             } else {
                 if (isNaN(parseFloat(val))) return;
                 val = parseFloat(val);
@@ -1025,10 +1024,10 @@ function initControls(globals){
         $input.val(val);
     }
 
-    function setHexInput(id, val, callback){
+    function setHexInput(id, val, callback) {
         var $input = $(id);
         $input.css({"border-color": "#" + val});
-        $input.change(function(){
+        $input.change(function() {
             var val = $input.val();
             var validHex  = /(^[0-9A-F]{6}$)|(^[0-9A-F]{3}$)/i.test(val);
             if (!validHex) return;
@@ -1039,7 +1038,7 @@ function initControls(globals){
         $input.val(val);
     }
 
-    function setCheckbox(id, state, callback){
+    function setCheckbox(id, state, callback) {
         var $input  = $(id);
         $input.on('change', function () {
             if ($input.is(":checked")) callback(true);
@@ -1048,7 +1047,7 @@ function initControls(globals){
         $input.prop('checked', state);
     }
 
-    function setSlider(id, val, min, max, incr, callback, callbackOnStop){
+    function setSlider(id, val, min, max, incr, callback, callbackOnStop) {
         var slider = $(id).slider({
             orientation: 'horizontal',
             range: false,
@@ -1057,19 +1056,18 @@ function initControls(globals){
             max: max,
             step: incr
         });
-        slider.on("slide", function(e, ui){
+        slider.on("slide", function(e, ui) {
             var val = ui.value;
             callback(val);
         });
-        slider.on("slidestop", function(){
+        slider.on("slidestop", function() {
             var val = slider.slider('value');
             if (callbackOnStop) callbackOnStop(val);
         });
         return slider;
     }
 
-    function setLogSliderInput(id, val, min, max, incr, callback){
-
+    function setLogSliderInput(id, val, min, max, incr, callback) {
         var scale = (Math.log(max)-Math.log(min)) / (max-min);
 
         var slider = $(id+">div").slider({
@@ -1082,9 +1080,9 @@ function initControls(globals){
         });
 
         var $input = $(id+">input");
-        $input.change(function(){
+        $input.change(function() {
             var val = $input.val();
-            if ($input.hasClass("int")){
+            if ($input.hasClass("int")) {
                 if (isNaN(parseInt(val))) return;
                 val = parseInt(val);
             } else {
@@ -1100,7 +1098,7 @@ function initControls(globals){
             callback(val, id);
         });
         $input.val(val);
-        slider.on("slide", function(e, ui){
+        slider.on("slide", function(e, ui) {
             var val = ui.value;
             val = Math.exp(Math.log(min) + scale*(val-min));
             $input.val(val.toFixed(4));
@@ -1108,14 +1106,13 @@ function initControls(globals){
         });
     }
 
-    function setSliderInputVal(id, val){
+    function setSliderInputVal(id, val) {
         $(id+">div").slider({value:val});
         var $input = $(id+">input");
         $input.val(val);
     }
 
-    function setSliderInput(id, val, min, max, incr, callback){
-
+    function setSliderInput(id, val, min, max, incr, callback) {
         var slider = $(id+">div").slider({
             orientation: 'horizontal',
             range: false,
@@ -1126,9 +1123,9 @@ function initControls(globals){
         });
 
         var $input = $(id+">input");
-        $input.change(function(){
+        $input.change(function() {
             var val = $input.val();
-            if ($input.hasClass("int")){
+            if ($input.hasClass("int")) {
                 if (isNaN(parseInt(val))) return;
                 val = parseInt(val);
             } else {
@@ -1144,7 +1141,7 @@ function initControls(globals){
             callback(val);
         });
         $input.val(val);
-        slider.on("slide", function(e, ui){
+        slider.on("slide", function(e, ui) {
             var val = ui.value;
             $input.val(val);
             callback(val);

@@ -3,14 +3,12 @@
  */
 
 
-function initGlobals(){
-
+function initGlobals() {
     var _globals = {
-
         navMode: "simulation",
         scale: 1,
 
-        //view
+        // view
         colorMode: "color", // allowed values: color, axialStrain, normal, texture
         calcFaceStrain: false,
         color1: "ec008b",
@@ -24,13 +22,13 @@ function initGlobals(){
         meshVisible: true,
         ambientOcclusion: false,
 
-        //flags
+        // flags
         simulationRunning: true,
         fixedHasChanged: false,
         forceHasChanged: false,
         materialHasChanged: false,
         creaseMaterialHasChanged: false,
-        shouldResetDynamicSim: false,//not used
+        shouldResetDynamicSim: false, // not used
         shouldChangeCreasePercent: false,
         nodePositionHasChanged: false,
         shouldZeroDynamicVelocity: false,
@@ -42,32 +40,32 @@ function initGlobals(){
 
         url: null,
 
-        //3d vis
+        // 3d vis
         simType: "dynamic",
 
-        //compliant sim settings
+        // compliant sim settings
         creasePercent: 0.0,
         axialStiffness: 20,
         creaseStiffness: 0.7,
         panelStiffness: 0.7,
         faceStiffness: 0.2,
 
-        //dynamic sim settings
-        percentDamping: 0.45,//damping ratio
+        // dynamic sim settings
+        percentDamping: 0.45, // damping ratio
         density: 1,
         integrationType: "euler",
 
-        strainClip: 5.0,//for strain visualization, % strain that is drawn red
+        strainClip: 5.0, // for strain visualization, % strain that is drawn red
 
-        //import pattern settings
-        vertTol: 3,//vertex merge tolerance
-        foldUseAngles: true,//import current angles from fold format as target angles
-        //for curved folding
+        // import pattern settings
+        vertTol: 3, // vertex merge tolerance
+        foldUseAngles: true, // import current angles from fold format as target angles
+        // for curved folding
         includeCurves: false,
-        vertInt: 20,//intervals of vertices for discretization
-        apprCurve: 0.2,//approximation quality of curves
+        vertInt: 20, // intervals of vertices for discretization
+        apprCurve: 0.2, // approximation quality of curves
 
-        //save stl settings
+        // save stl settings
         filename: null,
         extension: null,
         doublesidedSTL: false,
@@ -77,7 +75,7 @@ function initGlobals(){
         thickenOffset: 5,
         polyFacesOBJ: true,
 
-        //save fold settings
+        // save fold settings
         foldUnits: "unit",
         triangulateFOLDexport: false,
         exportFoldAngle: true,
@@ -108,7 +106,7 @@ function initGlobals(){
         drawingActive: false,
     };
 
-    function setCreasePercent(percent){
+    function setCreasePercent(percent) {
         _globals.creasePercent = percent;
         percent *= 100;
         $("#creasePercent>div").slider({value:percent});
@@ -118,7 +116,7 @@ function initGlobals(){
     }
     _globals.setCreasePercent = setCreasePercent;
 
-    function warn(msg){
+    function warn(msg) {
         if (($("#warningMessage").html()) != "") $("#warningMessage").append("<br/><hr>" + msg);
         else $("#warningMessage").html(msg);
         if (!$('#warningModal').hasClass('show')) $("#warningModal").modal("show");
@@ -128,7 +126,7 @@ function initGlobals(){
     });
     _globals.warn = warn;
 
-    function noCreasePatternAvailable(){
+    function noCreasePatternAvailable() {
         return $("#svgViewer>svg").length == 0;
     }
     _globals.noCreasePatternAvailable = noCreasePatternAvailable;

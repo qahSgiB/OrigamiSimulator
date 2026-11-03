@@ -2,15 +2,15 @@
  * Created by amandaghassaei on 2/24/17.
  */
 
-//model updates object3d geometry and materials
+// model updates object3d geometry and materials
 
-function initModel(globals){
+function initModel(globals) {
     var material, material2, geometry;
     var frontside = new THREE.Mesh(); // front face of mesh
     var backside = new THREE.Mesh(); // back face of mesh (different color)
     backside.visible = false;
 
-    var lineMaterial = new THREE.LineBasicMaterial({color: 0x000000, linewidth: 1});
+    var lineMaterial = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 1 });
     var hingeLines = new THREE.LineSegments(null, lineMaterial);
     var mountainLines = new THREE.LineSegments(null, lineMaterial);
     var valleyLines = new THREE.LineSegments(null, lineMaterial);
@@ -32,8 +32,7 @@ function initModel(globals){
     clearGeometries();
     setMeshMaterial();
 
-    function clearGeometries(){
-
+    function clearGeometries() {
         if (geometry) {
             frontside.geometry = null;
             backside.geometry = null;
@@ -43,10 +42,9 @@ function initModel(globals){
         geometry = new THREE.BufferGeometry();
         frontside.geometry = geometry;
         backside.geometry = geometry;
-        // geometry.verticesNeedUpdate = true;
         geometry.dynamic = true;
 
-        _.each(lines, function(line){
+        _.each(lines, function(line) {
             var lineGeometry = line.geometry;
             if (lineGeometry) {
                 line.geometry = null;
@@ -55,28 +53,27 @@ function initModel(globals){
 
             lineGeometry = new THREE.BufferGeometry();
             line.geometry = lineGeometry;
-            // lineGeometry.verticesNeedUpdate = true;
             lineGeometry.dynamic = true;
         });
     }
 
     globals.threeView.sceneAddModel(frontside);
     globals.threeView.sceneAddModel(backside);
-    _.each(lines, function(line){
+    _.each(lines, function(line) {
         globals.threeView.sceneAddModel(line);
     });
 
-    var positions;//place to store buffer geo vertex data
-    var colors;//place to store buffer geo vertex colors
+    var positions; // place to store buffer geo vertex data
+    var colors; // place to store buffer geo vertex colors
     var indices;
     var nodes = [];
     var faces = [];
     var edges = [];
     var creases = [];
-    var vertices = [];//indexed vertices array
+    var vertices = []; // indexed vertices array
     var fold, creaseParams;
 
-    var nextCreaseParams, nextFold;//todo only nextFold, nextCreases?
+    var nextCreaseParams, nextFold; // todo only nextFold, nextCreases?
 
     var inited = false;
 
@@ -91,7 +88,7 @@ function initModel(globals){
                 polygonOffsetUnits: 1
             });
             backside.visible = false;
-        } else if (globals.colorMode == "axialStrain"){
+        } else if (globals.colorMode == "axialStrain") {
             material = new THREE.MeshBasicMaterial({
                 vertexColors: THREE.VertexColors, side:THREE.DoubleSide,
                 polygonOffset: true,
@@ -159,7 +156,7 @@ function initModel(globals){
         backside.material = material2;
     }
 
-    function updateEdgeVisibility(){
+    function updateEdgeVisibility() {
         mountainLines.visible = globals.edgesVisible && globals.mtnsVisible;
         valleyLines.visible = globals.edgesVisible && globals.valleysVisible;
         facetLines.visible = globals.edgesVisible && globals.panelsVisible;
@@ -168,66 +165,62 @@ function initModel(globals){
         cutLines.visible = false;
     }
 
-    function updateMeshVisibility(){
+    function updateMeshVisibility() {
         frontside.visible = globals.meshVisible;
         backside.visible = (globals.colorMode == "color" || globals.colorMode == "texture") && globals.meshVisible;
     }
 
-    function getGeometry(){
+    function getGeometry() {
         return geometry;
     }
 
-    function getMesh(){
+    function getMesh() {
         return [frontside, backside];
     }
 
-    function getPositionsArray(){
+    function getPositionsArray() {
         return positions;
     }
 
-    function getColorsArray(){
+    function getColorsArray() {
         return colors;
     }
 
-    function pause(){
+    function pause() {
         globals.threeView.pauseSimulation();
     }
 
-    function resume(){
+    function resume() {
         globals.threeView.startSimulation();
     }
 
-    function reset(){
+    function reset() {
         getSolver().reset();
         setGeoUpdates();
     }
 
-    function step(numSteps){
+    function step(numSteps) {
         getSolver().solve(numSteps);
         setGeoUpdates();
     }
 
-    function setGeoUpdates(){
+    function setGeoUpdates() {
         geometry.attributes.position.needsUpdate = true;
         if (globals.colorMode == "axialStrain") geometry.attributes.color.needsUpdate = true;
         if (globals.userInteractionEnabled || globals.vrEnabled) geometry.computeBoundingBox();
     }
 
-    function startSolver(){
+    function startSolver() {
         globals.threeView.startAnimation();
     }
 
-    function getSolver(){
+    function getSolver() {
         if (globals.simType == "dynamic") return globals.dynamicSolver;
         else if (globals.simType == "static") return globals.staticSolver;
         return globals.rigidSolver;
     }
 
-
-
-
-    function buildModel(fold, creaseParams){
-
+    function buildModel(fold, creaseParams) {
         if (fold.vertices_coords.length == 0) {
             globals.warn("No geometry found.");
             return;
@@ -248,24 +241,23 @@ function initModel(globals){
         globals.simNeedsSync = true;
 
         if (!inited) {
-            startSolver();//start animation loop
+            startSolver(); // start animation loop
             inited = true;
         }
     }
 
 
 
-    function sync(){
-
-        for (var i=0;i<nodes.length;i++){
+    function sync() {
+        for (var i=0;i<nodes.length;i++) {
             nodes[i].destroy();
         }
 
-        for (var i=0;i<edges.length;i++){
+        for (var i=0;i<edges.length;i++) {
             edges[i].destroy();
         }
 
-        for (var i=0;i<creases.length;i++){
+        for (var i=0;i<creases.length;i++) {
             creases[i].destroy();
         }
 
@@ -284,7 +276,7 @@ function initModel(globals){
         var min_z = Infinity;
         var max_x = -Infinity;
         var max_z = -Infinity;
-        for (var i = 0; i < fold.vertices_coords.length; i++){
+        for (var i = 0; i < fold.vertices_coords.length; i++) {
             var vertex = fold.vertices_coords[i];
 
             if (vertex[0] < min_x) { min_x = vertex[0]; }
@@ -300,7 +292,7 @@ function initModel(globals){
 
         aspectRatio = scale_z / scale_x;
 
-        for (var i=0;i<fold.vertices_coords.length;i++){
+        for (var i=0;i<fold.vertices_coords.length;i++) {
             var vertex = fold.vertices_coords[i];
 
             uvs.push([
@@ -308,16 +300,15 @@ function initModel(globals){
                 (vertex[2] - min_z) / scale_z,
             ]);
         }
-
         // uv end
 
         var _vertices = [];
-        for (var i=0;i<fold.vertices_coords.length;i++){
+        for (var i=0;i<fold.vertices_coords.length;i++) {
             var vertex = fold.vertices_coords[i];
             _vertices.push(new THREE.Vector3(vertex[0], vertex[1], vertex[2]));
         }
 
-        for (var i=0;i<_vertices.length;i++){
+        for (var i=0;i<_vertices.length;i++) {
             nodes.push(new Node(_vertices[i].clone(), nodes.length));
         }
         // _nodes[_faces[0][0]].setFixed(true);
@@ -328,15 +319,15 @@ function initModel(globals){
             edges.push(new Beam([nodes[_edges[i][0]], nodes[_edges[i][1]]]));
         }
 
-        for (var i=0;i<creaseParams.length;i++) {//allCreaseParams.length
-            var _creaseParams = creaseParams[i];//face1Ind, vert1Ind, face2Ind, ver2Ind, edgeInd, angle
+        for (var i=0;i<creaseParams.length;i++) { // allCreaseParams.length
+            var _creaseParams = creaseParams[i]; // face1Ind, vert1Ind, face2Ind, ver2Ind, edgeInd, angle
             var type = _creaseParams[5]!=0 ? 1:0;
-            //edge, face1Index, face2Index, targetTheta, type, node1, node2, index
+            // edge, face1Index, face2Index, targetTheta, type, node1, node2, index
             creases.push(new Crease(
                 edges[_creaseParams[4]],
                 _creaseParams[0],
                 _creaseParams[2],
-                _creaseParams[5] * Math.PI / 180,  // convert back to radians for the GPU math
+                _creaseParams[5] * Math.PI / 180, // convert back to radians for the GPU math
                 type,
                 nodes[_creaseParams[1]],
                 nodes[_creaseParams[3]],
@@ -344,12 +335,12 @@ function initModel(globals){
         }
 
         vertices = [];
-        for (var i=0;i<nodes.length;i++){
+        for (var i=0;i<nodes.length;i++) {
             vertices.push(nodes[i].getOriginalPosition());
         }
 
-        if (globals.noCreasePatternAvailable() && globals.navMode == "pattern"){
-            //switch to simulation mode
+        if (globals.noCreasePatternAvailable() && globals.navMode == "pattern") {
+            // switch to simulation mode
             $("#navSimulation").parent().addClass("open");
             $("#navPattern").parent().removeClass("open");
             $("#svgViewer").hide();
@@ -361,19 +352,19 @@ function initModel(globals){
         colors = new Float32Array(vertices.length*3);
         indices = new Uint16Array(faces.length*3);
 
-        for (var i=0;i<vertices.length;i++){
+        for (var i=0;i<vertices.length;i++) {
             positions[3*i] = vertices[i].x;
             positions[3*i+1] = vertices[i].y;
             positions[3*i+2] = vertices[i].z;
         }
-        for (var i=0;i<faces.length;i++){
+        for (var i=0;i<faces.length;i++) {
             var face = faces[i];
             indices[3*i] = face[0];
             indices[3*i+1] = face[1];
             indices[3*i+2] = face[2];
         }
 
-        for (var i=0;i<uvs.length;i++){
+        for (var i=0;i<uvs.length;i++) {
             var uv = uvs[i];
             uvs_array[2*i] = uv[0];
             uvs_array[2*i+1] = uv[1];
@@ -391,16 +382,16 @@ function initModel(globals){
             F: [],
             C: []
         };
-        for (var i=0;i<fold.edges_assignment.length;i++){
+        for (var i=0;i<fold.edges_assignment.length;i++) {
             var edge = fold.edges_vertices[i];
             var assignment = fold.edges_assignment[i];
             lineIndices[assignment].push(edge[0]);
             lineIndices[assignment].push(edge[1]);
         }
-        _.each(lines, function(line, key){
+        _.each(lines, function(line, key) {
             var indicesArray = lineIndices[key];
             var indices = new Uint16Array(indicesArray.length);
-            for (var i=0;i<indicesArray.length;i++){
+            for (var i=0;i<indicesArray.length;i++) {
                 indices[i] = indicesArray[i];
             }
             lines[key].geometry.addAttribute('position', positionsAttribute);
@@ -427,19 +418,19 @@ function initModel(globals){
         var scale = 1/geometry.boundingSphere.radius;
         globals.scale = scale;
 
-        //scale geometry
-        for (var i=0;i<positions.length;i++){
+        // scale geometry
+        for (var i=0;i<positions.length;i++) {
             positions[i] *= scale;
         }
-        for (var i=0;i<vertices.length;i++){
+        for (var i=0;i<vertices.length;i++) {
             vertices[i].multiplyScalar(scale);
         }
 
-        //update vertices and edges
-        for (var i=0;i<vertices.length;i++){
+        // update vertices and edges
+        for (var i=0;i<vertices.length;i++) {
             nodes[i].setOriginalPosition(positions[3*i], positions[3*i+1], positions[3*i+2]);
         }
-        for (var i=0;i<edges.length;i++){
+        for (var i=0;i<edges.length;i++) {
             edges[i].recalcOriginalLength();
         }
 
@@ -454,28 +445,28 @@ function initModel(globals){
         if (!globals.simulationRunning) reset();
     }
 
-    function syncSolver(){
+    function syncSolver() {
         getSolver().syncNodesAndEdges();
         globals.simNeedsSync = false;
     }
 
-    function getNodes(){
+    function getNodes() {
         return nodes;
     }
 
-    function getEdges(){
+    function getEdges() {
         return edges;
     }
 
-    function getFaces(){
+    function getFaces() {
         return faces;
     }
 
-    function getCreases(){
+    function getCreases() {
         return creases;
     }
 
-    function getDimensions(){
+    function getDimensions() {
         geometry.computeBoundingBox();
         return geometry.boundingBox.max.clone().sub(geometry.boundingBox.min);
     }

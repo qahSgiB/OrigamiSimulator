@@ -20,7 +20,6 @@ function initThreeView(globals) {
     init();
 
     function init() {
-
         var container = $("#threeContainer");
         renderer.setPixelRatio( window.devicePixelRatio );
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -47,10 +46,11 @@ function initThreeView(globals) {
         var directionalLight5 = new THREE.DirectionalLight(0xffffff, 0.3);
         directionalLight5.position.set(0, 30, -100);
         scene.add(directionalLight5);
+
         // var ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
         // scene.add(ambientLight);
-        //scene.fog = new THREE.FogExp2(0xf4f4f4, 1.7);
-        //renderer.setClearColor(scene.fog.color);
+        // scene.fog = new THREE.FogExp2(0xf4f4f4, 1.7);
+        // renderer.setClearColor(scene.fog.color);
 
         scene.add(camera);
 
@@ -66,11 +66,11 @@ function initThreeView(globals) {
 	    controls.maxDistance = 30;
         // controls.addEventListener("change", render);
 
-        _render();//render before model loads
+        _render(); // render before model loads
 
     }
 
-    function resetCamera(){
+    function resetCamera() {
         camera.zoom = 7;
         camera.updateProjectionMatrix();
         camera.position.x = 5;
@@ -79,37 +79,38 @@ function initThreeView(globals) {
         if (controls) setCameraIso();
     }
 
-    function setCameraX(sign){
+    function setCameraX(sign) {
         controls.reset(new THREE.Vector3(sign,0,0));
     }
-    function setCameraY(sign){
+    function setCameraY(sign) {
         controls.reset(new THREE.Vector3(0,sign,0));
     }
-    function setCameraZ(sign){
+    function setCameraZ(sign) {
         controls.reset(new THREE.Vector3(0,0,sign));
     }
-    function setCameraIso(){
+    function setCameraIso() {
         controls.reset(new THREE.Vector3(1,1,1));
     }
 
-    function startAnimation(){
+    function startAnimation() {
         console.log("starting animation");
         renderer.animate(_loop);
     }
 
-    function pauseSimulation(){
+    function pauseSimulation() {
         globals.simulationRunning = false;
         console.log("pausing simulation");
     }
 
-    function startSimulation(){
+    function startSimulation() {
         console.log("starting simulation");
         globals.simulationRunning = true;
     }
 
     var captureStats = $("#stopRecord>span");
-    function _render(){
-        if (globals.vrEnabled){
+
+    function _render() {
+        if (globals.vrEnabled) {
             globals.vive.render();
             return;
         }
@@ -118,7 +119,7 @@ function initThreeView(globals) {
         renderer.render(scene, camera, depthRenderTarget);
 
         if (globals.capturer) {
-            if (globals.capturer == "png"){
+            if (globals.capturer == "png") {
                 var canvas = globals.threeView.renderer.domElement;
                 canvas.toBlob(function(blob) {
                     saveAs(blob, globals.screenRecordFilename + ".png");
@@ -134,20 +135,20 @@ function initThreeView(globals) {
         }
     }
 
-    function _loop(){
-        if (globals.rotateModel !== null){
+    function _loop() {
+        if (globals.rotateModel !== null) {
             if (globals.rotateModel == "x") modelWrapper.rotateX(globals.rotationSpeed);
             if (globals.rotateModel == "y") modelWrapper.rotateY(globals.rotationSpeed);
             if (globals.rotateModel == "z") modelWrapper.rotateZ(globals.rotationSpeed);
         }
-        if (globals.needsSync){
+        if (globals.needsSync) {
             globals.model.sync();
         }
-        if (globals.simNeedsSync){
+        if (globals.simNeedsSync) {
             globals.model.syncSolver();
         }
         if (globals.simulationRunning) globals.model.step();
-        if (globals.vrEnabled){
+        if (globals.vrEnabled) {
             _render();
             return;
         }
@@ -155,13 +156,13 @@ function initThreeView(globals) {
         _render();
     }
 
-    function sceneAddModel(object){
+    function sceneAddModel(object) {
         modelWrapper.add(object);
     }
 
     function onWindowResize() {
 
-        if (globals.vrEnabled){
+        if (globals.vrEnabled) {
             globals.warn("Can't resize window when in VR mode.");
             return;
         }
@@ -185,48 +186,16 @@ function initThreeView(globals) {
         controls.handleResize();
     }
 
-    function enableControls(state){
+    function enableControls(state) {
         controls.enabled = state;
         controls.enableRotate = state;
     }
 
-    // function saveSVG(){
-    //     // svgRenderer.setClearColor(0xffffff);
-    //     svgRenderer.setSize(window.innerWidth,window.innerHeight);
-    //     svgRenderer.sortElements = true;
-    //     svgRenderer.sortObjects = true;
-    //     svgRenderer.setQuality('high');
-    //     svgRenderer.render(scene,camera);
-    //     //get svg source.
-    //     var serializer = new XMLSerializer();
-    //     var source = serializer.serializeToString(svgRenderer.domElement);
-    //
-    //     //add name spaces.
-    //     if(!source.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)){
-    //         source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
-    //     }
-    //     if(!source.match(/^<svg[^>]+"http\:\/\/www\.w3\.org\/1999\/xlink"/)){
-    //         source = source.replace(/^<svg/, '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
-    //     }
-    //
-    //     //add xml declaration
-    //     source = '<?xml version="1.0" standalone="no"?>\r\n' + source;
-    //
-    //     var svgBlob = new Blob([source], {type:"image/svg+xml;charset=utf-8"});
-    //     var svgUrl = URL.createObjectURL(svgBlob);
-    //     var downloadLink = document.createElement("a");
-    //     downloadLink.href = svgUrl;
-    //     downloadLink.download =  globals.filename + " : " + parseInt(globals.creasePercent*100) +  "PercentFolded.svg";
-    //     document.body.appendChild(downloadLink);
-    //     downloadLink.click();
-    //     document.body.removeChild(downloadLink);
-    // }
-
-    function resetModel(){
+    function resetModel() {
         modelWrapper.rotation.set(0,0,0);
     }
 
-    function setBackgroundColor(color){
+    function setBackgroundColor(color) {
         if (color === undefined) color = globals.backgroundColor;
         scene.background.setStyle( "#" + color);
     }
@@ -239,20 +208,18 @@ function initThreeView(globals) {
         startSimulation: startSimulation,
         pauseSimulation: pauseSimulation,
 
-        enableControls: enableControls,//user interaction
+        enableControls: enableControls, // user interaction
         scene: scene,
-        camera: camera,//needed for user interaction
-        renderer: renderer,//needed for VR
+        camera: camera, // needed for user interaction
+        renderer: renderer, // needed for VR
         modelWrapper:modelWrapper,
-
-        // saveSVG: saveSVG,//svg screenshot
 
         setCameraX:setCameraX,
         setCameraY: setCameraY,
         setCameraZ: setCameraZ,
         setCameraIso: setCameraIso,
 
-        resetModel: resetModel,//reset model orientation
+        resetModel: resetModel, // reset model orientation
         resetCamera:resetCamera,
         setBackgroundColor: setBackgroundColor,
 

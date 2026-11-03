@@ -491,8 +491,7 @@ function initDrawing(globals) {
     globals.controls.setColorMode('texture');
   }
 
-  function end() {
-  }
+  function end() {}
 
   // # return
   return {
