@@ -5,7 +5,7 @@
 // model updates object3d geometry and materials
 
 function initModel(globals) {
-    var material, material2, geometry;
+    var geometry;
     var frontside = new THREE.Mesh(); // front face of mesh
     var backside = new THREE.Mesh(); // back face of mesh (different color)
     backside.visible = false;
@@ -78,82 +78,80 @@ function initModel(globals) {
     var inited = false;
 
     function setMeshMaterial() {
+        var frontMaterial = undefined;
+        var backMaterial = undefined;
+
         var polygonOffset = 0.5;
+
         if (globals.colorMode == "normal") {
-            material = new THREE.MeshNormalMaterial({
-                flatShading:true,
+            frontMaterial = new THREE.MeshNormalMaterial({
+                flatShading: true,
                 side: THREE.DoubleSide,
-                polygonOffset: true,
-                polygonOffsetFactor: polygonOffset, // positive value pushes polygon further away
-                polygonOffsetUnits: 1
             });
-            backside.visible = false;
         } else if (globals.colorMode == "axialStrain") {
-            material = new THREE.MeshBasicMaterial({
-                vertexColors: THREE.VertexColors, side:THREE.DoubleSide,
-                polygonOffset: true,
-                polygonOffsetFactor: polygonOffset, // positive value pushes polygon further away
-                polygonOffsetUnits: 1
+            frontMaterial = new THREE.MeshBasicMaterial({
+                vertexColors: THREE.VertexColors,
+                side: THREE.DoubleSide,
             });
-            backside.visible = false;
+
             if (!globals.threeView.simulationRunning) {
                 getSolver().render();
                 setGeoUpdates();
             }
         } else if (globals.colorMode == "color") {
-            material = new THREE.MeshPhongMaterial({
-                flatShading:true,
-                side:THREE.FrontSide,
-                polygonOffset: true,
-                polygonOffsetFactor: polygonOffset, // positive value pushes polygon further away
-                polygonOffsetUnits: 1
-            });
-            material2 = new THREE.MeshPhongMaterial({
-                flatShading:true,
-                side:THREE.BackSide,
-                polygonOffset: true,
-                polygonOffsetFactor: polygonOffset, // positive value pushes polygon further away
-                polygonOffsetUnits: 1
-            });
-            material.color.setStyle( "#" + globals.color1);
-            material2.color.setStyle( "#" + globals.color2);
-            backside.visible = true;
-        } else if (globals.colorMode === "texture") {
-            material = new THREE.MeshBasicMaterial({
+            frontMaterial = new THREE.MeshPhongMaterial({
                 flatShading: true,
                 side: THREE.FrontSide,
-                polygonOffset: true,
-                polygonOffsetFactor: polygonOffset, // positive value pushes polygon further away
-                polygonOffsetUnits: 1,
-                // map: globals.drawing.textureFront,
+                color: "#" + globals.color1,
             });
-            material2 = new THREE.MeshBasicMaterial({
+
+            backMaterial = new THREE.MeshPhongMaterial({
                 flatShading: true,
                 side: THREE.BackSide,
-                polygonOffset: true,
-                polygonOffsetFactor: polygonOffset, // positive value pushes polygon further away
-                polygonOffsetUnits: 1,
-                // map: globals.drawing.textureBack,
+                color: "#" + globals.color2,
+            });
+        } else if (globals.colorMode === "texture") {
+            frontMaterial = new THREE.MeshBasicMaterial({
+                flatShading: true,
+                side: THREE.FrontSide,
+            });
+
+            backMaterial = new THREE.MeshBasicMaterial({
+                flatShading: true,
+                side: THREE.BackSide,
             });
 
             if (globals.drawing.controls.getFrontSideEnabled()) {
-                material.color.setStyle('#ffffff');
-                material.map = globals.drawing.textureFront;
+                frontMaterial.color.setStyle('#ffffff');
+                frontMaterial.map = globals.drawing.textureFront;
             } else {
-                material.color.setStyle( "#" + globals.color1);
+                frontMaterial.color.setStyle( "#" + globals.color1);
             }
 
             if (globals.drawing.controls.getBackSideEnabled()) {
-                material2.color.setStyle('#ffffff');
-                material2.map = globals.drawing.textureBack;
+                backMaterial.color.setStyle('#ffffff');
+                backMaterial.map = globals.drawing.textureBack;
             } else {
-                material2.color.setStyle( "#" + globals.color2);
+                backMaterial.color.setStyle( "#" + globals.color2);
             }
-
-            backside.visible = true;
         }
-        frontside.material = material;
-        backside.material = material2;
+
+        frontside.visible = frontMaterial !== undefined;
+        if (frontside.visible) {
+            frontMaterial.polygonOffset = true;
+            frontMaterial.polygonOffsetFactor = polygonOffset;
+            frontMaterial.polygonOffsetUnits = 1;
+        }
+
+        backside.visible = backMaterial !== undefined;
+        if (backside.visible) {
+            backMaterial.polygonOffset = true;
+            backMaterial.polygonOffsetFactor = polygonOffset;
+            backMaterial.polygonOffsetUnits = 1;
+        }
+
+        frontside.material = frontMaterial;
+        backside.material = backMaterial;
     }
 
     function updateEdgeVisibility() {
