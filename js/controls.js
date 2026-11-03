@@ -567,28 +567,18 @@ function initControls(globals) {
     if (globals.colorMode == "axialStrain") $("#axialStrainMaterialOptions").show();
     else $("#axialStrainMaterialOptions").hide();
 
-    function setColorMode(val) {
-        globals.colorMode = val;
-        if (val == "color") {
-            $("#coloredMaterialOptions").show();
-            $("#colorToggle>div").addClass("active");
-        } else {
-            $("#coloredMaterialOptions").hide();
-            $("#colorToggle>div").removeClass("active");
-        }
-        if (val == "axialStrain") {
-            $("#axialStrainMaterialOptions").show();
-            $("#strainToggle>div").addClass("active");
-        } else {
-            $("#axialStrainMaterialOptions").hide();
-            $("#strainToggle>div").removeClass("active");
-        }
-        if (val === "texture") {
-            $("#textureToggle>div").addClass("active");
-        } else {
-            $("#textureToggle>div").removeClass("active");
-        }
-        $(".radio>input[value="+val+"]").prop("checked", true);
+    function setColorMode(mode) {
+        globals.colorMode = mode;
+
+        $("#colorToggle").toggleClass("toggleButtonActive", mode === "color");
+        $("#strainToggle").toggleClass("toggleButtonActive", mode === "axialStrain");
+        $("#textureToggle").toggleClass("toggleButtonActive", mode === "texture");
+
+        $("#coloredMaterialOptions").toggle(mode === "color");
+        $("#axialStrainMaterialOptions").toggle(mode === "axialStrain");
+
+        $(".radio>input[value=" + mode + "]").prop("checked", true);
+
         globals.model.setMeshMaterial();
     }
     setRadio("colorMode", globals.colorMode, setColorMode);
@@ -704,47 +694,38 @@ function initControls(globals) {
     function enableInteraction(val) {
         setMode(val ? 'grab' : 'orbit');
     }
+
     function setMode(mode) {
-        globals.userInteractionEnabled = mode === 'grab';
-        globals.drawingActive = mode === 'draw';
-        $("#userInteractionEnabled").prop('checked', mode === 'grab');
-        if (mode === 'grab') {
-            $("#grabToggle>div").addClass("active");
-            $("#orbitToggle>div").removeClass("active");
-            $("#drawToggle>div").removeClass("active");
+        globals.userInteractionEnabled = mode === "grab";
+        $("#userInteractionEnabled").prop("checked", mode === "grab");
 
+        globals.drawingActive = mode === "draw";
+
+        $("#grabToggle").toggleClass("toggleButtonActive", mode === "grab");
+        $("#orbitToggle").toggleClass("toggleButtonActive", mode === "orbit");
+        $("#drawToggle").toggleClass("toggleButtonActive", mode === "draw");
+
+        if (mode === "grab") {
             globals.rotateModel = null;
             globals.threeView.resetModel();
-
             globals.drawing.end();
-        } else if (mode === 'orbit') {
-            $("#grabToggle>div").removeClass("active");
-            $("#orbitToggle>div").addClass("active");
-            $("#drawToggle>div").removeClass("active");
+        }
 
+        if (mode === "orbit") {
             globals.UI3D.hideHighlighters();
-
             globals.drawing.end();
-        } else if (mode === 'draw') {
-            $("#grabToggle>div").removeClass("active");
-            $("#orbitToggle>div").removeClass("active");
-            $("#drawToggle>div").addClass("active");
+        }
 
+        if (mode === "draw") {
             globals.rotateModel = null;
             globals.threeView.resetModel();
-
             globals.drawing.start();
         }
     }
-    setLink("#grabToggle", function() {
-        setMode('grab');
-    });
-    setLink("#orbitToggle", function() {
-        setMode('orbit');
-    });
-    setLink("#drawToggle", function() {
-        setMode('draw');
-    });
+
+    setLink("#grabToggle", function() { setMode("grab"); });
+    setLink("#orbitToggle", function() { setMode("orbit"); });
+    setLink("#drawToggle", function() { setMode("draw"); });
 
     setCheckbox($("#foldUseAngles"), globals.foldUseAngles, function(val) {
         globals.foldUseAngles = val;

@@ -1275,11 +1275,24 @@
 <div id="svgViewer"></div>
 <div id="helper">Load more origami patterns here!</div>
 <div id="controlsBottom">
-    <div id="viewToggle" class="bigToggleButBetter">
-        <div>
-            <a href="#" id="colorToggle"><div class="active"><img src="assets/hyparColorSmall.png"/><span>Material</span></div></a><div class="separator"></div><a href="#" id="strainToggle"><div><img src="assets/hyparStrainSmall.png"/><span>Strain</span></div></a></a><div class="separator"></div><a href="#" id="textureToggle"><div><img src="assets/hors.png"/><span>Texture</span></div></a>
+    <div id="viewToggle" class="toggle">
+        <div class="toggleControls">
+            <a href="#" id="colorToggle" class="toggleButton toggleButtonActive">
+                <img class="toggleButtonImage" src="assets/hyparColorSmall.png"/>
+                <span class="toggleButtonTitle">Material</span>
+            </a>
+            <div class="toggleSeparator"></div>
+            <a href="#" id="strainToggle" class="toggleButton">
+                <img class="toggleButtonImage" src="assets/hyparStrainSmall.png"/>
+                <span class="toggleButtonTitle">Strain</span>
+            </a>
+            <div class="toggleSeparator"></div>
+            <a href="#" id="textureToggle" class="toggleButton">
+                <img class="toggleButtonImage" src="assets/hors.png"/>
+                <span class="toggleButtonTitle">Texture</span>
+            </a>
         </div>
-        View Mode
+        <span class="toggleTitle">View Mode</span>
     </div>
     <div id="bottomSliderContainer">
         <div class="sliderInput" id="creasePercentBottom">
@@ -1297,12 +1310,24 @@
         </a>
         <span>Fold Percent: <span id="foldPercentSimple"></span>%</span>
     </div>
-    <div id="controlsToggle" class="bigToggleButBetter">
-        <div>
-            <!-- TODO: try formatting, see the problem when running, maybe related to inline-block -->
-            <a href="#" id="orbitToggle"><div class="active"><img class="preserveAspect" src="assets/rotateSmall.png"/><span>Rotate</span></div></a><div class="separator"></div><a href="#" id="grabToggle"><div><img class="preserveAspect" src="assets/grabSmall.png"/><span>Grab</span></div></a><div class="separator"></div><a href="#" id="drawToggle"><div><img class="preserveAspect" src="assets/icons/drawing/draw.png"/><span>Draw</span></div></a>
+    <div id="controlsToggle" class="toggle">
+        <div class="toggleControls">
+            <a href="#" id="orbitToggle" class="toggleButton toggleButtonActive">
+                <img class="toggleButtonImage" src="assets/rotateSmall.png"/>
+                <span class="toggleButtonTitle">Rotate</span>
+            </a>
+            <div class="toggleSeparator"></div>
+            <a href="#" id="grabToggle" class="toggleButton">
+                <img class="toggleButtonImage" src="assets/grabSmall.png"/>
+                <span class="toggleButtonTitle">Grab</span>
+            </a>
+            <div class="toggleSeparator"></div>
+            <a href="#" id="drawToggle" class="toggleButton">
+                <img class="toggleButtonImage" src="assets/icons/drawing/draw.png"/>
+                <span class="toggleButtonTitle">Draw</span>
+            </a>
         </div>
-        Control Mode
+        <span class="toggleTitle">Control Mode</span>
     </div>
     <a href="#" id="resetBottom" class="btn btn-lg btn-default">Reset</a>
 </div>
