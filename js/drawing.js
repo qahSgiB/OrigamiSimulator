@@ -42,7 +42,7 @@ function initDrawing(globals) {
     })
   }
 
-  function init() {
+  function initPreload() {
     // load resources parallelly
     Promise.all([
       fetchText('assets/shaders/brush-perspective.frag'),
@@ -51,11 +51,11 @@ function initDrawing(globals) {
       var fragmentShader = loaded[0];
       var vertexShader = loaded[1];
 
-      init2(fragmentShader, vertexShader);
+      init(fragmentShader, vertexShader);
     });
   }
 
-  function init2(fragmentShader, vertexShader) {
+  function init(fragmentShader, vertexShader) {
     qCamera = new THREE.OrthographicCamera(-1.0, 1.0, 1.0, -1.0, -1.0, 1.0);
 
     qScene = new THREE.Scene();
@@ -153,7 +153,6 @@ function initDrawing(globals) {
     // # copy texture from gpu
     var textureBuffer = new Uint8Array(textureSize * textureSize * 4);
 
-    // globals.threeView.renderer.readRenderTargetPixels(qRenderTargetFront, 0, 0, textureSize, textureSize, textureBuffer);
     globals.threeView.renderer.readRenderTargetPixels(renderTarget, 0, 0, textureSize, textureSize, textureBuffer);
 
     // # put the texture on canvas
@@ -192,8 +191,7 @@ function initDrawing(globals) {
     canvas.toBlob(cont, 'image/png');
   }
 
-  // TODO: name
-  function aaaa(cont) {
+  function qTextureToPngBlob(cont) {
     textoreToPngBlob(qRenderTargetFront, function (blobFront) {
       textoreToPngBlob(qRenderTargetBack, function (blobBack) {
         cont(blobFront, blobBack);
@@ -202,8 +200,8 @@ function initDrawing(globals) {
   }
 
   // callback: function to call after export is complete
-  function saveTexturePng(callback) {
-    aaaa(function (blobFront, blobBack) {
+  function saveQTexturePng(callback) {
+    qTextureToPngBlob(function (blobFront, blobBack) {
       saveAs(blobFront, 'origami-texture-front.png');
       saveAs(blobBack, 'origami-texture-back.png');
 
@@ -214,8 +212,8 @@ function initDrawing(globals) {
   }
 
   // callback: function to call after export is complete
-  function saveTexturePdf(callback) {
-    aaaa(function (blobFront, blobBack) {
+  function saveQTexturePdf(callback) {
+    qTextureToPngBlob(function (blobFront, blobBack) {
       blobFront.arrayBuffer().then(function (pngBufferFront) {
         blobBack.arrayBuffer().then(function (pngBufferBack) {
           var pdf = new PDFDocument({ size: 'A4' });
@@ -255,13 +253,13 @@ function initDrawing(globals) {
     });
   }
 
-  function updateGeometry(geometry) {
+  function updateQGeometry(geometry) {
     if (qQuad !== undefined) {
       qQuad.geometry = geometry;
     }
   }
 
-  function updateMVP() {
+  function updateQMVP() {
     var mesh = globals.model.getMesh()[0];
 
     qMaterial.uniforms.real_model_view.value = mesh.modelViewMatrix;
@@ -402,10 +400,9 @@ function initDrawing(globals) {
       return;
     }
 
-    updateMVP();
+    updateQMVP();
 
     var mouse = new THREE.Vector2(event.clientX, event.clientY);
-    // var mouse = new THREE.Vector2(event.clientX, 450);
 
     if (stampingMode) {
       lastMouse = mouse;
@@ -420,10 +417,9 @@ function initDrawing(globals) {
     }
 
     if (event.button === mouseButtonToDraw) {
-      updateMVP();
+      updateQMVP();
 
       lastMouse = new THREE.Vector2(event.clientX, event.clientY);
-      // lastMouse = new THREE.Vector2(window.screen.width / 2, window.screen.height / 2);
       drawAt(lastMouse);
     }
   }
@@ -481,7 +477,7 @@ function initDrawing(globals) {
   var initBrushTexture = 'assets/hors.png';
 
   // # start
-  init();
+  initPreload();
 
   document.addEventListener('mousemove', onMouseMove);
   document.addEventListener('mousedown', onMouseDown);
@@ -497,7 +493,7 @@ function initDrawing(globals) {
   return {
     start: start,
     end: end,
-    updateGeometry: updateGeometry,
+    updateGeometry: updateQGeometry,
     textureFront: undefined,
     textureBack: undefined,
     controls: {
@@ -510,8 +506,8 @@ function initDrawing(globals) {
       setSpacing: setSpacing,
       setBrushMinAngle: setBrushMinAngle,
       setBrushDepthTest: setBrushDepthTest,
-      saveTexturePng: saveTexturePng,
-      saveTexturePdf: saveTexturePdf,
+      saveTexturePng: saveQTexturePng,
+      saveTexturePdf: saveQTexturePdf,
       setExportTransform: setExportTransform,
       setClearColorHex: setClearColorHex,
       setStampingMode: setStampingMode,
