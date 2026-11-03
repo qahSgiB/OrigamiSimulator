@@ -57,7 +57,7 @@ function initImporter(globals){
                     e.preventDefault();
                     $('#doSVGImport').unbind("click");
                     if (!globals.includeCurves) {
-                        globals.pattern.loadSVG(reader.result);    
+                        globals.pattern.loadSVG(reader.result);
                     } else {
                         globals.curvedFolding.loadSVG(reader.result);
                     }
@@ -88,7 +88,7 @@ function initImporter(globals){
                         globals.extension = extension;
                         globals.url = null;
                         if (!globals.includeCurves) {
-                            globals.pattern.loadSVG(reader.result);    
+                            globals.pattern.loadSVG(reader.result);
                         } else {
                             globals.curvedFolding.loadSVG(reader.result);
                         }
@@ -120,6 +120,10 @@ function initImporter(globals){
                             fold.edges_foldAngle = fold.edges_foldAngles;
                             delete fold.edges_foldAngles;
                         }
+
+                        // TODO(tomas): fold import nefungoval, kreslilo sa akoby na opacnu stranu
+                        fold = globals.pattern.reverseFaceOrder(fold);
+
                         if (fold.edges_foldAngle){
                             globals.pattern.setFoldData(fold);
                             return;

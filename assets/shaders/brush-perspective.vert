@@ -2,7 +2,7 @@ uniform mat4 real_model_view;
 uniform mat4 real_projection;
 
 varying vec4 view_pos;
-varying vec4 ndc_pos; // (interolation doesn't matter since gl_Position.z is constant 0.0, by default perspective, linear would be better ?)
+varying vec4 ndc_pos; // interolation doesn't matter since gl_Position.z is constant 0.5, by default perspective, linear would be better ?
 
 
 void main() {

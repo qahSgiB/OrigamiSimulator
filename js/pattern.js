@@ -1135,7 +1135,7 @@ function initPattern(globals){
     }
 
     function saveSVG(){
-        
+
         if (globals.includeCurves) {
             globals.curvedFolding.saveSVG();
             return;
@@ -1285,6 +1285,7 @@ function initPattern(globals){
         saveSVG: saveSVG,
         getFoldData: getFoldData,
         getTriangulatedFaces: getTriangulatedFaces,
-        setFoldData: setFoldData
+        setFoldData: setFoldData,
+        reverseFaceOrder: reverseFaceOrder
     }
 }

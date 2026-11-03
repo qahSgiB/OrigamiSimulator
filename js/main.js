@@ -83,5 +83,5 @@ $(function() {
     // TODO: debug only
     setTimeout(function() {
         globals.controls.setMode('draw');
-    }, 1500.0);
+    }, 2000.0);
 });

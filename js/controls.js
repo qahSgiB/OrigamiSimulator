@@ -802,7 +802,7 @@ function initControls(globals){
         return "#brush-type-" + brushType + " > img";
     }
 
-    for (var i = 0; i < 6; i++) {
+    for (var i = 0; i < 7; i++) {
         (function (i) {
             var brushClass = brushTypeClass(i);
 
@@ -813,9 +813,48 @@ function initControls(globals){
                 globals.drawing.controls.setBrushType(i);
 
                 $(brushClass).addClass("brush-type-image-active");
+
+                showBrushControls(i); // TODO: global constant
             });
         })(i);
     }
+
+    function showBrushControls(brushType) {
+        if (brushType === 4) { // texture
+            $('#brush-color-container').hide();
+            $('#brush-texture-container').show();
+        } else if (brushType === 6) { // eraser
+            $('#brush-color-container').hide();
+            $('#brush-texture-container').hide();
+        } else {
+            $('#brush-color-container').show();
+            $('#brush-texture-container').hide();
+        }
+    }
+
+    setHexInput("#brush-color", "000000", function (brushColor) {
+        globals.drawing.controls.setBrushColorHex(brushColor);
+    });
+
+    setLink("#brush-texture-change", function (e) {
+        $("#brush-texture").click();
+        // $(e.target).blur();
+    });
+
+    $("#brush-texture").change(function (e) {
+        var files = e.target.files;
+        if (files.length !== 1) {
+            throw new Error('exactly one file has to be uploaded');
+        }
+
+        var textureUrl = URL.createObjectURL(files[0]);
+
+        // TODO: is this good solution
+        // TODO: blob url exposed
+        $('#brush-texture-image').attr('src', textureUrl);
+
+        globals.drawing.controls.setBrushTexture(textureUrl);
+    });
 
     // TODO: default values
     setSlider("#brush-size", 50, 1, 100, 1, function (brushSize) {
@@ -824,10 +863,14 @@ function initControls(globals){
         $('#brush-size-value').text(brushSize + ' px');
     });
 
-    setSlider("#brush-spacing", 5, 1, 10, 0.5, function (spacing) {
-        globals.drawing.controls.setSpacing(spacing);
+    setSlider("#brush-spacing", 5, 0, 100, 5, function (spacing) {
+        globals.drawing.controls.setSpacing(spacing / 100.0);
 
-        $('#brush-spacing-value').text(spacing + ' px');
+        $('#brush-spacing-value').text(spacing + ' %');
+    });
+
+    setCheckbox("#brush-stamping-mode", false, function (stampingMode) {
+        globals.drawing.controls.setStampingMode(stampingMode);
     });
 
     setSlider("#brush-angle", 90, 0, 180, 5, function (angle) {
@@ -836,12 +879,53 @@ function initControls(globals){
         $('#brush-angle-value').text((180 - angle) + '°');
     });
 
-    setLink("#drawing-export", function () {
-        globals.drawing.controls.saveTexture();
+    setCheckbox("#brush-depth-test", false, function (depthTest) {
+        globals.drawing.controls.setBrushDepthTest(depthTest);
+    });
+
+    setCheckbox("#drawing-front-side", true, function (frontSide) {
+        globals.drawing.controls.setFrontSideEnabled(frontSide);
+        globals.model.setMeshMaterial();
+    });
+
+    setCheckbox("#drawing-back-side", false, function (backSide) {
+        globals.drawing.controls.setBackSideEnabled(backSide);
+        globals.model.setMeshMaterial();
+    });
+
+    function drawingExportEnable() {
+        $('#drawing-export-png').removeClass('drawing-export-button-disabled-a');
+        $('#drawing-export-pdf').removeClass('drawing-export-button-disabled-a');
+        // TODO
+        $('#drawing-export-png .drawing-export-button').removeClass('drawing-export-button-disabled');
+        $('#drawing-export-pdf .drawing-export-button').removeClass('drawing-export-button-disabled');
+        $('#drawing-export-progress').removeClass('drawing-export-progress-show');
+    }
+
+    function drawingExportDisable() {
+        $('#drawing-export-png').addClass('drawing-export-button-disabled-a');
+        $('#drawing-export-pdf').addClass('drawing-export-button-disabled-a');
+        $('#drawing-export-png .drawing-export-button').addClass('drawing-export-button-disabled');
+        $('#drawing-export-pdf .drawing-export-button').addClass('drawing-export-button-disabled');
+        $('#drawing-export-progress').addClass('drawing-export-progress-show');
+    }
+
+    setLink("#drawing-export-png", function () {
+        drawingExportDisable();
+        globals.drawing.controls.saveTexturePng(drawingExportEnable);
+    });
+
+    setLink("#drawing-export-pdf", function () {
+        drawingExportDisable();
+        globals.drawing.controls.saveTexturePdf(drawingExportEnable);
     });
 
     setLink("#drawing-clear", function () {
         globals.drawing.controls.clear();
+    });
+
+    setHexInput("#drawing-clear-color", "ffa6e6", function (clearColor) {
+        globals.drawing.controls.setClearColorHex(clearColor);
     });
 
     setLink("#drawing-reset-controls", function () {
@@ -850,18 +934,45 @@ function initControls(globals){
         // TODO: ui reseting maybe shouldn't be done here
         globals.drawing.controls.resetControlsValues();
 
+        var brushColor = $('#brush-color');
+        brushColor.val('000000');
+        brushColor.css({ 'border-color': '#000000' });
+
+        $('#brush-texture-image').attr('src', 'assets/hors.png');
+
         $("#brush-size").slider('value', 50);
         $('#brush-size-value').text('50 px');
 
         $("#brush-spacing").slider('value', 5);
-        $('#brush-spacing-value').text('5 px');
+        $('#brush-spacing-value').text('5 %');
+
+        $("#brush-stamping-mode").prop('checked', false);
 
         $("#brush-angle").slider('value', 90);
         $('#brush-angle-value').text('90°');
 
+        $("#brush-depth-test").prop('checked', false);
+
+        var clearColor = $('#drawing-clear-color');
+        clearColor.val('ffa6e6');
+        clearColor.css({ 'border-color': '#ffa6e6' });
+
+        $("#export-rotate").prop('checked', false);
+
+        $('#drawing-front-side').prop('checked', true);
+        $('#drawing-back-side').prop('checked', false);
+
+        var brushType = globals.drawing.controls.getBrushType();
+        var brushClass = brushTypeClass(brushType);
+
         $(oldBrushClass).removeClass("brush-type-image-active");
-        var brushClass = brushTypeClass(globals.drawing.controls.getBrushType());
         $(brushClass).addClass("brush-type-image-active");
+
+        showBrushControls(brushType); // TODO: global constant
+    });
+
+    setCheckbox("#export-rotate", false, function (exportRotate) {
+        globals.drawing.controls.setExportTransform(exportRotate ? 'rotate' : 'none');
     });
 
 

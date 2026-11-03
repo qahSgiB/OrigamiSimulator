@@ -5,10 +5,9 @@
 //model updates object3d geometry and materials
 
 function initModel(globals){
-
     var material, material2, geometry;
-    var frontside = new THREE.Mesh();//front face of mesh
-    var backside = new THREE.Mesh();//back face of mesh (different color)
+    var frontside = new THREE.Mesh(); // front face of mesh
+    var backside = new THREE.Mesh(); // back face of mesh (different color)
     backside.visible = false;
 
     var lineMaterial = new THREE.LineBasicMaterial({color: 0x000000, linewidth: 1});
@@ -27,6 +26,8 @@ function initModel(globals){
         F: facetLines,
         B: borderLines
     };
+
+    var aspectRatio = undefined;
 
     clearGeometries();
     setMeshMaterial();
@@ -122,23 +123,36 @@ function initModel(globals){
             backside.visible = true;
         } else if (globals.colorMode === "texture") {
             material = new THREE.MeshBasicMaterial({
-                flatShading:true,
-                // side:THREE.FrontSide,
+                flatShading: true,
+                side: THREE.FrontSide,
                 polygonOffset: true,
                 polygonOffsetFactor: polygonOffset, // positive value pushes polygon further away
                 polygonOffsetUnits: 1,
-                map: globals.drawing.texture,
+                // map: globals.drawing.textureFront,
             });
             material2 = new THREE.MeshBasicMaterial({
-                flatShading:true,
-                side:THREE.BackSide,
+                flatShading: true,
+                side: THREE.BackSide,
                 polygonOffset: true,
                 polygonOffsetFactor: polygonOffset, // positive value pushes polygon further away
-                polygonOffsetUnits: 1
+                polygonOffsetUnits: 1,
+                // map: globals.drawing.textureBack,
             });
-            // material.color.setStyle( "#" + globals.color1);
-            material.color.setStyle('#ffffff');
-            material2.color.setStyle( "#" + globals.color2);
+
+            if (globals.drawing.controls.getFrontSideEnabled()) {
+                material.color.setStyle('#ffffff');
+                material.map = globals.drawing.textureFront;
+            } else {
+                material.color.setStyle( "#" + globals.color1);
+            }
+
+            if (globals.drawing.controls.getBackSideEnabled()) {
+                material2.color.setStyle('#ffffff');
+                material2.map = globals.drawing.textureBack;
+            } else {
+                material2.color.setStyle( "#" + globals.color2);
+            }
+
             backside.visible = true;
         }
         frontside.material = material;
@@ -156,7 +170,7 @@ function initModel(globals){
 
     function updateMeshVisibility(){
         frontside.visible = globals.meshVisible;
-        backside.visible = globals.colorMode == "color" && globals.meshVisible;
+        backside.visible = (globals.colorMode == "color" || globals.colorMode == "texture") && globals.meshVisible;
     }
 
     function getGeometry(){
@@ -270,7 +284,7 @@ function initModel(globals){
         var min_z = Infinity;
         var max_x = -Infinity;
         var max_z = -Infinity;
-        for (var i=0;i<fold.vertices_coords.length;i++){
+        for (var i = 0; i < fold.vertices_coords.length; i++){
             var vertex = fold.vertices_coords[i];
 
             if (vertex[0] < min_x) { min_x = vertex[0]; }
@@ -283,6 +297,8 @@ function initModel(globals){
 
         var scale_x = max_x - min_x;
         var scale_z = max_z - min_z;
+
+        aspectRatio = scale_z / scale_x;
 
         for (var i=0;i<fold.vertices_coords.length;i++){
             var vertex = fold.vertices_coords[i];
@@ -464,6 +480,10 @@ function initModel(globals){
         return geometry.boundingBox.max.clone().sub(geometry.boundingBox.min);
     }
 
+    function getAspectRatio() {
+        return aspectRatio;
+    }
+
     return {
         pause: pause,
         resume: resume,
@@ -474,20 +494,21 @@ function initModel(globals){
         getEdges: getEdges,
         getFaces: getFaces,
         getCreases: getCreases,
-        getGeometry: getGeometry,//for save stl
+        getGeometry: getGeometry, // for save stl
         getPositionsArray: getPositionsArray,
         getColorsArray: getColorsArray,
         getMesh: getMesh,
 
-        buildModel: buildModel,//load new model
-        sync: sync,//update geometry to new model
-        syncSolver: syncSolver,//update solver params
+        buildModel: buildModel, // load new model
+        sync: sync, // update geometry to new model
+        syncSolver: syncSolver, // update solver params
 
-        //rendering
+        // rendering
         setMeshMaterial: setMeshMaterial,
         updateEdgeVisibility: updateEdgeVisibility,
         updateMeshVisibility: updateMeshVisibility,
 
-        getDimensions: getDimensions//for save stl
+        getDimensions: getDimensions, // for save stl
+        getAspectRatio: getAspectRatio
     }
 }

@@ -826,7 +826,7 @@ object {
     font-weight: bold;
 }
 
-.drawing-b {
+.drawing-title-brush {
     margin: 0;
     margin-top: 5px;
 
@@ -884,6 +884,71 @@ object {
     background-color: rgba(50, 50, 50, 0.2);
 }
 
+.brush-color {
+    margin: 0;
+    margin-top: 20px;
+
+    font-size: 16px;
+}
+
+.brush-color-input {
+    margin-left: 6px;
+}
+
+.brush-texture {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    margin: 0;
+    margin-top: 20px;
+    margin-bottom: 4px;
+}
+
+.brush-texture-title-div {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    gap: 10px;
+}
+
+.brush-texture-title {
+    margin: 0;
+
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.brush-texture-change {
+    margin: 0;
+
+    padding: 1px 10px;
+
+    background-color: rgb(215, 215, 215);
+    color: rgb(85, 85, 85);
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.brush-texture-change:hover {
+    background-color: rgb(205, 205, 205);
+    color: rgb(105, 105, 105);
+}
+
+.brush-texture-image {
+    margin-top: 8px;
+
+    /* TODO: non square textures */
+    width: 120px;
+    height: 120px;
+    object-fit: fill;
+}
+
+#brush-texture {
+    display: none;
+}
+
 .brush-slider {
     width: 100%;
 
@@ -894,7 +959,7 @@ object {
 }
 
 .brush-slider-size {
-    margin-top: 20px;
+    margin-top: 12px;
 }
 
 .brush-slider-spacing {
@@ -902,6 +967,16 @@ object {
 }
 
 .brush-slider-angle {
+    margin-top: 8px;
+}
+
+.brush-checkbox-stamping-mode {
+    margin: 0;
+    margin-top: 8px;
+}
+
+.brush-checkbox-depth-test {
+    margin: 0;
     margin-top: 8px;
 }
 
@@ -939,17 +1014,124 @@ object {
     font-size: 10px;
 }
 
-.drawing-aux {
-    margin-top: 5px;
+.drawing-clear {
+    margin: 0;
+    margin-top: 20px;
 
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    gap: 12px;
 }
 
-.drawing-aux-button {
+.drawing-clear-text {
+    margin: 0;
+
+    padding: 2px 12px;
+
+    background-color: rgb(215, 215, 215);
+    color: rgb(85, 85, 85);
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.drawing-clear-text:hover {
+    background-color: rgb(205, 205, 205);
+    color: rgb(105, 105, 105);
+}
+
+.drawing-clear-color-input {
+    margin-left: 8px;
+}
+
+.drawing-title-sides {
+    margin: 0;
+    margin-top: 12px;
+
+    font-size: 22px;
+    font-weight: bold;
+    color: rgb(125, 125, 125);
+}
+
+.drawing-checkbox-side {
+    margin: 0;
+    margin-top: 8px;
+}
+
+.drawing-title-export {
+    margin: 0;
+    margin-top: 12px;
+
+    font-size: 22px;
+    font-weight: bold;
+    color: rgb(125, 125, 125);
+}
+
+.drawing-export {
+    margin-top: 15px;
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+.drawing-export-button {
+    margin: 0;
+    padding: 4px 10px;
+
+    font-size: 16px;
+
+    background-color: rgb(0, 0, 0);
+    color: rgb(255, 255, 255);
+    font-weight: bold;
+}
+
+.drawing-export-button:hover {
+    background-color: rgb(40, 40, 40);
+}
+
+/* TODO: name */
+.drawing-export-button-disabled-a {
+    pointer-events: none;
+}
+
+.drawing-export-button-disabled {
+    background-color: rgb(215, 215, 215);
+    color: rgb(160, 160, 160);
+}
+
+.drawing-export-button-disabled:hover {
+    background-color: rgb(215, 215, 215);
+}
+
+.export-rotate-checkbox {
+    margin: 0;
+    margin-top: 16px;
+}
+
+.drawing-export-progress {
+    margin: 0;
+    margin-top: 12px;
+
+    font-size: 16px;
+    font-weight: bold;
+
+    visibility: hidden;
+}
+
+.drawing-export-progress-show {
+    visibility: visible;
+}
+
+.drawing-reset-button {
+    margin-top: 16px;
+}
+
+.drawing-reset-text {
+    margin: 0;
+
     padding: 1px 10px;
 
     background-color: rgb(215, 215, 215);
@@ -958,20 +1140,7 @@ object {
     font-weight: bold;
 }
 
-.drawing-aux-button:hover {
-    background-color: rgb(205, 205, 205);
-    color: rgb(105, 105, 105);
-}
-
-.drawing-export {
-    margin-top: 20px;
-    padding: 6px 20px;
-
-    background-color: rgb(0, 0, 0);
-    color: rgb(255, 255, 255);
-    font-weight: bold;
-}
-
-.drawing-export:hover {
-    background-color: rgb(40, 40, 40);
+.drawing-reset-text:hover {
+    background-color: rgb(255, 215, 0);
+    color: rgb(40, 40, 40);
 }

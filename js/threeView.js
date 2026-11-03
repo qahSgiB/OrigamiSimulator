@@ -3,45 +3,17 @@
  */
 
 function initThreeView(globals) {
-
     var scene = new THREE.Scene();
     var modelWrapper = new THREE.Object3D();
 
-    var camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 500);
-    // var aspect = window.innerHeight/window.innerWidth;
-    // var b = 5;
-    // var camera = new THREE.OrthographicCamera(-b, b, -b * aspect, b * aspect, 0.1, 500);
+    var camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 500);
 
-    var renderer = new THREE.WebGLRenderer({ antialias: false });
+    var renderer = new THREE.WebGLRenderer({ antialias: true });
 
-    var ssaaSamples = 2;
-
-    var depthTexture = new THREE.DepthTexture(window.innerWidth * ssaaSamples, window.innerHeight * ssaaSamples, THREE.UnsignedIntType);
-    var renderTarget = new THREE.WebGLRenderTarget(window.innerWidth * ssaaSamples, window.innerHeight * ssaaSamples, { depthTexture: depthTexture });
-
-    globals.d.renderTarget = renderTarget;
-
-    // # offscreen copy to screen
-    // TODO: names
-    var vertexShader = document.getElementById("textureToScreenVert").text;
-    var fragmentShader = document.getElementById("textureToScreenFrag").text;
-
-    var offscreenMaterial = new THREE.ShaderMaterial({
-      vertexShader: vertexShader,
-      fragmentShader: fragmentShader,
-      uniforms: {
-        from_texture: { value: renderTarget.texture },
-        sample_delta: { value: new THREE.Vector2(1.0 / (window.innerWidth * ssaaSamples), 1.0 / (window.innerHeight * ssaaSamples)) },
-        sample_count: { value: ssaaSamples },
-      },
-      side: THREE.DoubleSide,
-    });
-
-    var offscreenCamera = new THREE.OrthographicCamera(-1.0, 1.0, 1.0, -1.0, 1.0, 10.0);
-    var offscreenGeometry = new THREE.PlaneGeometry(2.0, 2.0);
-    var offscreenQuad = new THREE.Mesh(offscreenGeometry, offscreenMaterial);
-    var offscreenScene = new THREE.Scene();
-    offscreenScene.add(offscreenQuad);
+    // # render target for depth texture
+    var depthSamples = 2;
+    var depthTexture = new THREE.DepthTexture(window.innerWidth * depthSamples, window.innerHeight * depthSamples, THREE.UnsignedIntType);
+    var depthRenderTarget = new THREE.WebGLRenderTarget(window.innerWidth * depthSamples, window.innerHeight * depthSamples, { depthTexture: depthTexture });
 
     var controls;
 
@@ -54,7 +26,7 @@ function initThreeView(globals) {
         renderer.setSize(window.innerWidth, window.innerHeight);
         container.append(renderer.domElement);
 
-        scene.background = new THREE.Color(0xffffff);//new THREE.Color(0xe6e6e6);
+        scene.background = new THREE.Color(0xffffff);
         setBackgroundColor();
         scene.add(modelWrapper);
         var directionalLight1 = new THREE.DirectionalLight(0xffffff, 0.8);
@@ -142,12 +114,8 @@ function initThreeView(globals) {
             return;
         }
 
-        if (globals.d.sp) {
-            renderer.render(scene, camera);
-        } else {
-            renderer.render(scene, camera, renderTarget);
-            renderer.render(offscreenScene, offscreenCamera);
-        }
+        renderer.render(scene, camera);
+        renderer.render(scene, camera, depthRenderTarget);
 
         if (globals.capturer) {
             if (globals.capturer == "png"){
@@ -211,10 +179,8 @@ function initThreeView(globals) {
         var width = window.innerWidth;
         var height = window.innerHeight;
 
-        renderTarget.setSize(width * ssaaSamples, height * ssaaSamples);
+        depthRenderTarget.setSize(width * depthSamples, height * depthSamples);
         renderer.setSize(width, height);
-
-        offscreenMaterial.uniforms.delta.value = new THREE.Vector2(1.0 / (width * ssaaSamples), 1.0 / (height * ssaaSamples));
 
         controls.handleResize();
     }
