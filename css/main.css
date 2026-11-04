@@ -185,6 +185,10 @@ p {
     color: #34495e;
 }
 
+.toggleButtonImageDraw {
+    padding-top: 2px;
+}
+
 #resetBottom {
     position: absolute;
     right: 30px;
