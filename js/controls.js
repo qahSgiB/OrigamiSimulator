@@ -787,10 +787,10 @@ function initControls(globals) {
             var brushClass = brushTypeClass(i);
 
             setLink(brushClass, function() {
-                var oldBrushClass = brushTypeClass(globals.drawing.controls.getBrushType());
+                var oldBrushClass = brushTypeClass(globals.drawing.brush.getType());
                 $(oldBrushClass).removeClass("brush-type-image-active");
 
-                globals.drawing.controls.setBrushType(i);
+                globals.drawing.brush.setType(i);
 
                 $(brushClass).addClass("brush-type-image-active");
 
@@ -813,7 +813,7 @@ function initControls(globals) {
     }
 
     setHexInput("#brush-color", "000000", function (brushColor) {
-        globals.drawing.controls.setBrushColorHex(brushColor);
+        globals.drawing.brush.setColorHex(brushColor);
     });
 
     setLink("#brush-texture-change", function (e) {
@@ -833,43 +833,43 @@ function initControls(globals) {
         // TODO: blob url exposed
         $('#brush-texture-image').attr('src', textureUrl);
 
-        globals.drawing.controls.setBrushTexture(textureUrl);
+        globals.drawing.brush.setTexture(textureUrl);
     });
 
     // TODO: default values
     setSlider("#brush-size", 50, 1, 100, 1, function (brushSize) {
-        globals.drawing.controls.setBrushSize(brushSize);
+        globals.drawing.brush.setMaskingRadius(brushSize);
 
         $('#brush-size-value').text(brushSize + ' px');
     });
 
     setSlider("#brush-spacing", 5, 0, 100, 5, function (spacing) {
-        globals.drawing.controls.setSpacing(spacing / 100.0);
+        globals.drawing.interactivity.setSpacing(spacing / 100.0);
 
         $('#brush-spacing-value').text(spacing + ' %');
     });
 
     setCheckbox("#brush-stamping-mode", false, function (stampingMode) {
-        globals.drawing.controls.setStampingMode(stampingMode);
+        globals.drawing.interactivity.setStampingMode(stampingMode);
     });
 
     setSlider("#brush-angle", 90, 0, 180, 5, function (angle) {
-        globals.drawing.controls.setBrushMinAngle((180 - angle) * Math.PI / 180.0);
+        globals.drawing.brush.setMaskingMinAngle((180 - angle) * Math.PI / 180.0);
 
         $('#brush-angle-value').text((180 - angle) + '°');
     });
 
     setCheckbox("#brush-depth-test", false, function (depthTest) {
-        globals.drawing.controls.setBrushDepthTest(depthTest);
+        globals.drawing.brush.setMaskingDepthTest(depthTest);
     });
 
     setCheckbox("#drawing-front-side", true, function (frontSide) {
-        globals.drawing.controls.setFrontSideEnabled(frontSide);
+        globals.drawing.setFrontSideEnabled(frontSide);
         globals.model.setMeshMaterial();
     });
 
     setCheckbox("#drawing-back-side", false, function (backSide) {
-        globals.drawing.controls.setBackSideEnabled(backSide);
+        globals.drawing.setBackSideEnabled(backSide);
         globals.model.setMeshMaterial();
     });
 
@@ -892,27 +892,27 @@ function initControls(globals) {
 
     setLink("#drawing-export-png", function () {
         drawingExportDisable();
-        globals.drawing.controls.saveTexturePng(drawingExportEnable);
+        globals.drawing.export.saveTexturePng(drawingExportEnable);
     });
 
     setLink("#drawing-export-pdf", function () {
         drawingExportDisable();
-        globals.drawing.controls.saveTexturePdf(drawingExportEnable);
+        globals.drawing.export.saveTexturePdf(drawingExportEnable);
     });
 
     setLink("#drawing-clear", function () {
-        globals.drawing.controls.clear();
+        globals.drawing.clear();
     });
 
     setHexInput("#drawing-clear-color", "ffa6e6", function (clearColor) {
-        globals.drawing.controls.setClearColorHex(clearColor);
+        globals.drawing.setClearColorHex(clearColor);
     });
 
     setLink("#drawing-reset-controls", function () {
-        var oldBrushClass = brushTypeClass(globals.drawing.controls.getBrushType());
+        var oldBrushClass = brushTypeClass(globals.drawing.brush.getType());
 
         // TODO: ui reseting maybe shouldn't be done here
-        globals.drawing.controls.resetControlsValues();
+        globals.drawing.resetControlsValues();
 
         var brushColor = $('#brush-color');
         brushColor.val('000000');
@@ -942,7 +942,7 @@ function initControls(globals) {
         $('#drawing-front-side').prop('checked', true);
         $('#drawing-back-side').prop('checked', false);
 
-        var brushType = globals.drawing.controls.getBrushType();
+        var brushType = globals.drawing.brush.getType();
         var brushClass = brushTypeClass(brushType);
 
         $(oldBrushClass).removeClass("brush-type-image-active");
@@ -952,7 +952,7 @@ function initControls(globals) {
     });
 
     setCheckbox("#export-rotate", false, function (exportRotate) {
-        globals.drawing.controls.setExportTransform(exportRotate ? 'rotate' : 'none');
+        globals.drawing.export.setExportTransform(exportRotate ? 'rotate' : 'none');
     });
 
 

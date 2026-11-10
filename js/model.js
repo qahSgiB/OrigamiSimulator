@@ -121,14 +121,14 @@ function initModel(globals) {
                 side: THREE.BackSide,
             });
 
-            if (globals.drawing.controls.getFrontSideEnabled()) {
+            if (globals.drawing.getFrontSideEnabled()) {
                 frontMaterial.color.setStyle('#ffffff');
                 frontMaterial.map = globals.drawing.textureFront;
             } else {
                 frontMaterial.color.setStyle( "#" + globals.color1);
             }
 
-            if (globals.drawing.controls.getBackSideEnabled()) {
+            if (globals.drawing.getBackSideEnabled()) {
                 backMaterial.color.setStyle('#ffffff');
                 backMaterial.map = globals.drawing.textureBack;
             } else {
