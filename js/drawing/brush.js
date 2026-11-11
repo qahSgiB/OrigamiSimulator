@@ -20,11 +20,11 @@ function initBrush(globals, globalsDrawing) {
     type = ehType;
 
     if (type === 6) { // eraser
-      globalsDrawing.qMaterial.uniforms.brush_color.value = globalsDrawing.getClearColor();
-      globalsDrawing.qMaterial.uniforms.brush_type.value = 1;
+      colorWithEraser = globalsDrawing.interactivity.getClearColor();
+      typeWithEraser = 1;
     } else {
-      globalsDrawing.qMaterial.uniforms.brush_color.value = color;
-      globalsDrawing.qMaterial.uniforms.brush_type.value = type;
+      colorWithEraser = color;
+      typeWithEraser = type;
     }
   }
 
@@ -36,7 +36,7 @@ function initBrush(globals, globalsDrawing) {
 
     // do not adjust color in eraser mode
     if (type !== 6) {
-      globalsDrawing.qMaterial.uniforms.brush_color.value = color;
+      colorWithEraser = color;
     }
   }
 
@@ -51,24 +51,41 @@ function initBrush(globals, globalsDrawing) {
   // radius: in pixels
   function setMaskingRadius(ehRadius) {
     radius = ehRadius;
-    globalsDrawing.qMaterial.uniforms.brush_radius.value = new THREE.Vector2(2.0 * radius / window.innerWidth, 2.0 * radius / window.innerHeight);
+    radiusVector = new THREE.Vector2(2.0 * radius / window.innerWidth, 2.0 * radius / window.innerHeight);
   }
 
   // angle: in radians
   function setMaskingMinAngle(angle) {
-    globalsDrawing.qMaterial.uniforms.brush_min_angle_cos.value = Math.cos(angle);
+    minAngleCos = Math.cos(angle);
   }
 
   function setMaskingDepthTest(depthTest) {
-    globalsDrawing.qMaterial.uniforms.depth_epsilon.value = depthTest ? DEPTH_TEST_DEFAULT : DEPTH_TEST_DISABLE;
+    depthEpsilon = depthTest ? DEPTH_TEST_DEFAULT : DEPTH_TEST_DISABLE;
+  }
+
+  function getUniforms() {
+    return {
+      type: typeWithEraser,
+      color: colorWithEraser,
+      radius: radiusVector,
+      depthEpsilon: depthEpsilon,
+      minAngleCos: minAngleCos,
+    };
   }
 
 
   var textureLoader = new THREE.TextureLoader();
 
   var type = undefined;
-  var radius = undefined;
   var color = undefined;
+
+  var typeWithEraser = undefined;
+  var colorWithEraser = undefined;
+
+  var radius = undefined;
+  var radiusVector = undefined;
+  var minAngleCos = undefined;
+  var depthEpsilon = undefined;
 
 
   return {
@@ -80,5 +97,6 @@ function initBrush(globals, globalsDrawing) {
     getMaskingRadius: getMaskingRadius,
     setMaskingMinAngle: setMaskingMinAngle,
     setMaskingDepthTest: setMaskingDepthTest,
+    getUniforms: getUniforms,
   }
 }

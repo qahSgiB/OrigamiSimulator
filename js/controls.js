@@ -864,12 +864,12 @@ function initControls(globals) {
     });
 
     setCheckbox("#drawing-front-side", true, function (frontSide) {
-        globals.drawing.setFrontSideEnabled(frontSide);
+        globals.drawing.interactivity.setFrontSideEnabled(frontSide);
         globals.model.setMeshMaterial();
     });
 
     setCheckbox("#drawing-back-side", false, function (backSide) {
-        globals.drawing.setBackSideEnabled(backSide);
+        globals.drawing.interactivity.setBackSideEnabled(backSide);
         globals.model.setMeshMaterial();
     });
 
@@ -901,11 +901,11 @@ function initControls(globals) {
     });
 
     setLink("#drawing-clear", function () {
-        globals.drawing.clear();
+        globals.drawing.interactivity.clear();
     });
 
     setHexInput("#drawing-clear-color", "ffa6e6", function (clearColor) {
-        globals.drawing.setClearColorHex(clearColor);
+        globals.drawing.interactivity.setClearColorHex(clearColor);
     });
 
     setLink("#drawing-reset-controls", function () {

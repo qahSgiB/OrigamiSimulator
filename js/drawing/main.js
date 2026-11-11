@@ -92,7 +92,15 @@ function initDrawing(globals) {
 
     resetControlsValues();
 
-    clear();
+    var renderer = globals.threeView.renderer;
+
+    renderer.setClearColor(globalsDrawing.interactivity.getClearColor());
+
+    renderer.setRenderTarget(qRenderTargetFront);
+    renderer.clear();
+
+    renderer.setRenderTarget(qRenderTargetBack);
+    renderer.clear();
   }
 
   function updateGeometry(geometry) {
@@ -108,47 +116,27 @@ function initDrawing(globals) {
     qMaterial.uniforms.real_projection.value = globals.threeView.camera.projectionMatrix;
   }
 
-  function draw() {
+  function withAutoClearRestore(callback) {
     var renderer = globals.threeView.renderer;
 
     var originalAutoClear = renderer.autoClear;
     renderer.autoClear = false;
 
-    if (frontSideEnabled) {
-      qMaterial.uniforms.flip_normal.value = 1.0;
-      renderer.render(qScene, qCamera, qRenderTargetFront);
-    }
-
-    if (backSideEnabled) {
-      qMaterial.uniforms.flip_normal.value = -1.0;
-      renderer.render(qScene, qCamera, qRenderTargetBack);
-    }
+    callback();
 
     renderer.autoClear = originalAutoClear;
   }
 
-  function clear() {
+  function drawFront() {
     var renderer = globals.threeView.renderer;
 
-    renderer.setClearColor(clearColor);
-
-    renderer.setRenderTarget(qRenderTargetFront);
-    renderer.clear();
-
-    renderer.setRenderTarget(qRenderTargetBack);
-    renderer.clear();
+    renderer.render(qScene, qCamera, qRenderTargetFront);
   }
 
-  function setFrontSideEnabled(ehFrontSideEnabled) { frontSideEnabled = ehFrontSideEnabled; }
-  function getFrontSideEnabled() { return frontSideEnabled; }
-  function setBackSideEnabled(ehBackSideEnabled) { backSideEnabled = ehBackSideEnabled; }
-  function getBackSideEnabled() { return backSideEnabled; }
-  function setClearColor(color) { clearColor = color; }
-  function getClearColor() { return clearColor; }
+  function drawBack() {
+    var renderer = globals.threeView.renderer;
 
-  function setClearColorHex(colorHex) {
-    var color = parseHexColor(colorHex);
-    setClearColor(new THREE.Color(color.x, color.y, color.z));
+    renderer.render(qScene, qCamera, qRenderTargetBack);
   }
 
   function resetControlsValues() {
@@ -161,12 +149,11 @@ function initDrawing(globals) {
 
     globalsDrawing.interactivity.setSpacing(initSpacing);
     globalsDrawing.interactivity.setStampingMode(initStampingMode);
+    globalsDrawing.interactivity.setFrontSideEnabled(initFrontSideEnabled);
+    globalsDrawing.interactivity.setBackSideEnabled(initBackSideEnabled);
+    globalsDrawing.interactivity.setClearColor(initClearColor);
 
     globalsDrawing.export.setExportTransform(initExportTransform);
-
-    setClearColor(initClearColor);
-    setFrontSideEnabled(initFrontSideEnabled);
-    setBackSideEnabled(initBackSideEnabled);
   }
 
   function start() {
@@ -184,11 +171,6 @@ function initDrawing(globals) {
   var qMaterial = undefined;
 
   var textureSize = 2048;
-
-  var frontSideEnabled = undefined;
-  var backSideEnabled = undefined;
-
-  var clearColor = undefined;
 
   var initBrushType = 3;
   var initBrushColor = '000000';
@@ -213,14 +195,9 @@ function initDrawing(globals) {
     textureSize: textureSize,
     updateGeometry: updateGeometry,
     updateMVP: updateMVP,
-    draw: draw,
-    clear: clear,
-    setFrontSideEnabled: setFrontSideEnabled,
-    setBackSideEnabled: setBackSideEnabled,
-    getFrontSideEnabled: getFrontSideEnabled,
-    getBackSideEnabled: getBackSideEnabled,
-    getClearColor: getClearColor,
-    setClearColorHex: setClearColorHex,
+    withAutoClearRestore: withAutoClearRestore,
+    drawFront: drawFront,
+    drawBack: drawBack,
     resetControlsValues: resetControlsValues,
     start: start,
     end: end,
@@ -229,6 +206,7 @@ function initDrawing(globals) {
   globalsDrawing.brush = initBrush(globals, globalsDrawing);
   globalsDrawing.export = initExport(globals, globalsDrawing);
   globalsDrawing.interactivity = initInteractivity(globals, globalsDrawing);
+  globalsDrawing.undo = initUndo(globals, globalsDrawing);
 
   initPreload();
 
