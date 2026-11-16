@@ -955,6 +955,14 @@ function initControls(globals) {
         globals.drawing.export.setExportTransform(exportRotate ? 'rotate' : 'none');
     });
 
+    setLink("#drawing-undo", function () {
+        globals.drawing.undo.undo(); // TODO: can undo ?
+    });
+
+    setLink("#drawing-redo", function () {
+        globals.drawing.undo.redo(); // TODO: can redo ?
+    });
+
 
     function setButtonGroup(id, callback) {
         $(id+" a").click(function(e) {
