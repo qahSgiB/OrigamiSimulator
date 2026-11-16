@@ -76,19 +76,24 @@ function initUndo(globals, globalsDrawing) {
     }
   }
 
-  function applyLastStep() {
-    applyStep(history[history.length - 1]);
+  function addStep(step) {
+    if (currentStep !== history.length - 1) {
+      history.splice(currentStep + 1, history.length - currentStep - 1);
+    }
+
+    history.push(step);
+    currentStep += 1;
+
+    applyStep(step);
   }
 
   function makeStepClear(frontSide, backSide, color) {
-    history.push({
+    addStep({
       type: 'clear',
       frontSide: frontSide,
       backSide: backSide,
       color: color,
     });
-
-    applyLastStep();
   }
 
   // TODO: missing: positions, uvs, MV, P, depth texture, brush texture
@@ -97,7 +102,7 @@ function initUndo(globals, globalsDrawing) {
     maskingCenter, maskingRadius, maskingDepthEpsilon, maskingMinAngleCos,
     brushType, brushColor,
   ) {
-    history.push({
+    addStep({
       type: 'stamp',
       frontSide: frontSide,
       backSide: backSide,
@@ -108,8 +113,6 @@ function initUndo(globals, globalsDrawing) {
       brushType: brushType,
       brushColor: brushColor,
     });
-
-    applyLastStep();
   }
 
   // TODO: missing: positions, uvs, MV, P, depth texture, brush texture
@@ -119,7 +122,7 @@ function initUndo(globals, globalsDrawing) {
     maskingRadius, maskingDepthEpsilon, maskingMinAngleCos,
     brushType, brushColor,
   ) {
-    history.push({
+    addStep({
       type: 'drag',
       frontSide: frontSide,
       backSide: backSide,
@@ -130,9 +133,43 @@ function initUndo(globals, globalsDrawing) {
       brushType: brushType,
       brushColor: brushColor,
     });
-
-    applyLastStep();
   }
+
+  function canUndo() {
+    return currentStep > 0;
+  }
+
+  // undo assumes that the very first step (undex 0) is a step with type clear
+  function undo() {
+    if (!canUndo()) {
+      throw new Error('cannot undo'); // TODO: error handling
+    }
+
+    var fromStep = currentStep - 1;
+    while (history[fromStep].type !== 'clear') { fromStep -= 1; }
+
+    currentStep -= 1;
+
+    for (var step = fromStep; step <= currentStep; step += 1) {
+      applyStep(history[step]);
+    }
+  }
+
+  function canRedo() {
+    return currentStep < history.length - 1;
+  }
+
+  function redo() {
+    if (!canRedo()) {
+      throw new Error('cannot redo'); // TODO: error handling
+    }
+
+    currentStep += 1;
+
+    applyStep(history[currentStep]);
+  }
+
+  var currentStep = -1;
 
   var history = [];
 
@@ -140,5 +177,7 @@ function initUndo(globals, globalsDrawing) {
     makeStepClear: makeStepClear,
     makeStepStamp: makeStepStamp,
     makeStepDrag: makeStepDrag,
+    undo: undo,
+    redo: redo,
   }
 }

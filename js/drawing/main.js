@@ -92,15 +92,7 @@ function initDrawing(globals) {
 
     resetControlsValues();
 
-    var renderer = globals.threeView.renderer;
-
-    renderer.setClearColor(globalsDrawing.interactivity.getClearColor());
-
-    renderer.setRenderTarget(qRenderTargetFront);
-    renderer.clear();
-
-    renderer.setRenderTarget(qRenderTargetBack);
-    renderer.clear();
+    globalsDrawing.undo.makeStepClear(true, true, globalsDrawing.interactivity.getClearColor());
   }
 
   function updateGeometry(geometry) {
