@@ -48,7 +48,7 @@ function initInteractivity(globals, globalsDrawing) {
       frontSideEnabled, backSideEnabled,
       centers,
       brushUniforms.radius, brushUniforms.depthEpsilon, brushUniforms.minAngleCos,
-      brushUniforms.type, brushUniforms.color,
+      brushUniforms.type, brushUniforms.color, brushUniforms.texture,
     );
 
     return from.clone().add(step.clone().multiplyScalar(count));
@@ -61,7 +61,7 @@ function initInteractivity(globals, globalsDrawing) {
     globalsDrawing.undo.makeStepStamp(
       frontSideEnabled, backSideEnabled,
       center, brushUniforms.radius, brushUniforms.depthEpsilon, brushUniforms.minAngleCos,
-      brushUniforms.type, brushUniforms.color,
+      brushUniforms.type, brushUniforms.color, brushUniforms.texture,
     );
   }
 

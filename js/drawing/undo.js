@@ -19,6 +19,7 @@ function initUndo(globals, globalsDrawing) {
     globalsDrawing.qMaterial.uniforms.brush_radius.value = step.maskingRadius;
     globalsDrawing.qMaterial.uniforms.brush_type.value = step.brushType;
     globalsDrawing.qMaterial.uniforms.brush_color.value = step.brushColor;
+    globalsDrawing.qMaterial.uniforms.brush_texture.value = globalsDrawing.brush.getTextureById(step.brushTexture); // TODO: id to three.Texture
     globalsDrawing.qMaterial.uniforms.brush_min_angle_cos.value = step.maskingMinAngleCos;
     globalsDrawing.qMaterial.uniforms.depth_epsilon.value = step.maskingDepthEpsilon;
   }
@@ -76,10 +77,28 @@ function initUndo(globals, globalsDrawing) {
     }
   }
 
+  function useTexture(step) {
+    if (step.type === 'stamp' || step.type === 'drag') {
+      globalsDrawing.brush.textureUse(step.brushTexture);
+    }
+  }
+
+  function unuseTexture(step) {
+    if (step.type === 'stamp' || step.type === 'drag') {
+      globalsDrawing.brush.textureUnuse(step.brushTexture);
+    }
+  }
+
   function addStep(step) {
     if (currentStep !== history.length - 1) {
+      for (var i = currentStep + 1; i < history.length; i += 1) {
+        unuseTexture(history[i]);
+      }
+
       history.splice(currentStep + 1, history.length - currentStep - 1);
     }
+
+    useTexture(step);
 
     history.push(step);
     currentStep += 1;
@@ -96,11 +115,11 @@ function initUndo(globals, globalsDrawing) {
     });
   }
 
-  // TODO: missing: positions, uvs, MV, P, depth texture, brush texture
+  // TODO: missing: positions, uvs, MV, P, depth texture
   function makeStepStamp(
     frontSide, backSide,
     maskingCenter, maskingRadius, maskingDepthEpsilon, maskingMinAngleCos,
-    brushType, brushColor,
+    brushType, brushColor, brushTexture,
   ) {
     addStep({
       type: 'stamp',
@@ -112,15 +131,16 @@ function initUndo(globals, globalsDrawing) {
       maskingMinAngleCos: maskingMinAngleCos,
       brushType: brushType,
       brushColor: brushColor,
+      brushTexture: brushTexture,
     });
   }
 
-  // TODO: missing: positions, uvs, MV, P, depth texture, brush texture
+  // TODO: missing: positions, uvs, MV, P, depth texture
   function makeStepDrag(
     frontSide, backSide,
     centers,
     maskingRadius, maskingDepthEpsilon, maskingMinAngleCos,
-    brushType, brushColor,
+    brushType, brushColor, brushTexture,
   ) {
     addStep({
       type: 'drag',
@@ -132,6 +152,7 @@ function initUndo(globals, globalsDrawing) {
       maskingMinAngleCos: maskingMinAngleCos,
       brushType: brushType,
       brushColor: brushColor,
+      brushTexture: brushTexture,
     });
   }
 
@@ -145,7 +166,7 @@ function initUndo(globals, globalsDrawing) {
       throw new Error('cannot undo'); // TODO: error handling
     }
 
-    var fromStep = currentStep - 1;
+    var fromStep = currentStep - 1; // TODO: cache fromStep
     while (history[fromStep].type !== 'clear') { fromStep -= 1; }
 
     currentStep -= 1;

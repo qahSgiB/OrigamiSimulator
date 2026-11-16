@@ -134,7 +134,7 @@ function initDrawing(globals) {
   function resetControlsValues() {
     globalsDrawing.brush.setType(initBrushType);
     globalsDrawing.brush.setColorHex(initBrushColor);
-    globalsDrawing.brush.setTexture(initBrushTexture);
+    globalsDrawing.brush.setTextureNew(initBrushTexture);
     globalsDrawing.brush.setMaskingRadius(initBrushRadius);
     globalsDrawing.brush.setMaskingMinAngle(initBrushMinAngle);
     globalsDrawing.brush.setMaskingDepthTest(initBrushDepthTest);

@@ -40,10 +40,26 @@ function initBrush(globals, globalsDrawing) {
     }
   }
 
-  function setTexture(textureUrl) {
+  function getTextureId(){
+    return textureId;
+  }
+
+  function setTextureNew(textureUrl) {
+    textureId = nextTextureId;
+    nextTextureId += 1;
+
     fetchTexture(textureLoader, textureUrl).then(function (brushTexture) {
-      globalsDrawing.qMaterial.uniforms.brush_texture.value = brushTexture;
-    })
+      textures[textureId] = {
+        usageCount: 1, // 1 because it is already available in the UI
+        texture: brushTexture,
+      };
+    });
+
+    return textureId;
+  }
+
+  function setTextureById(ehTextureId) {
+    textureId = ehTextureId;
   }
 
   function getMaskingRadius() { return radius; }
@@ -63,6 +79,28 @@ function initBrush(globals, globalsDrawing) {
     depthEpsilon = depthTest ? DEPTH_TEST_DEFAULT : DEPTH_TEST_DISABLE;
   }
 
+  function getTextureById(textureId) {
+    return textures[textureId].texture;
+  }
+
+  // increases textures usage count by one
+  function textureUse(textureId) {
+    textures[textureId].usageCount += 1;
+  }
+
+  // increases textures usage count by one
+  function textureUnuse(textureId) {
+    var texture = textures[textureId];
+
+    if (texture.usageCount > 1) {
+      texture.usageCount -= 1;
+    } else {
+      console.log(`debug 1 texture disposed, id : ${textureId}`); // TODO: debug
+      texture.texture.dispose();
+      delete textures[textureId];
+    }
+  }
+
   function getUniforms() {
     return {
       type: typeWithEraser,
@@ -70,6 +108,7 @@ function initBrush(globals, globalsDrawing) {
       radius: radiusVector,
       depthEpsilon: depthEpsilon,
       minAngleCos: minAngleCos,
+      texture: textureId,
     };
   }
 
@@ -82,6 +121,10 @@ function initBrush(globals, globalsDrawing) {
   var typeWithEraser = undefined;
   var colorWithEraser = undefined;
 
+  var textures = {};
+  var nextTextureId = 0;
+  var textureId = undefined;
+
   var radius = undefined;
   var radiusVector = undefined;
   var minAngleCos = undefined;
@@ -92,11 +135,16 @@ function initBrush(globals, globalsDrawing) {
     getType: getType,
     setType: setType,
     setColorHex: setColorHex,
-    setTexture: setTexture,
+    getTextureId: getTextureId,
+    setTextureNew: setTextureNew,
+    setTextureById: setTextureById,
     setMaskingRadius: setMaskingRadius,
     getMaskingRadius: getMaskingRadius,
     setMaskingMinAngle: setMaskingMinAngle,
     setMaskingDepthTest: setMaskingDepthTest,
+    getTextureById: getTextureById,
+    textureUse: textureUse,
+    textureUnuse: textureUnuse,
     getUniforms: getUniforms,
   }
 }

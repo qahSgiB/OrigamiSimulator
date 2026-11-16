@@ -846,6 +846,7 @@
     <script type="text/javascript" src="js/drawing/brush.js"></script>
     <script type="text/javascript" src="js/drawing/export.js"></script>
     <script type="text/javascript" src="js/drawing/interactivity.js"></script>
+    <script type="text/javascript" src="js/drawing/undo.js"></script>
 
     <script type="text/javascript" src="dependencies/cdt2d.js"></script><!-- constrained delaunay triangulation -->
     <script type="text/javascript" src="dependencies/svgpath.js"></script>
@@ -1427,6 +1428,10 @@
 
 <div id="controlsDrawing">
     <p class="drawing-a">Drawing Controls</p>
+    <div class="drawing-undo-container">
+        <a href="#" id="drawing-undo"><p class="drawing-undo-text">Undo</p></a>
+        <a href="#" id="drawing-redo"><p class="drawing-undo-text">Redo</p></a>
+    </div>
     <p class="drawing-title-brush">Brush</p>
     <div class="drawing-brush-grid">
         <div class="drawing-brush-grid-item"><a href="#" id="brush-type-0"><img class="brush-type-image" src="assets/icons/brush/circle.svg" /></a></div>
@@ -1448,6 +1453,11 @@
         </div>
         <img id="brush-texture-image" class="brush-texture-image" src="assets/hors.png" />
         <input id="brush-texture" type="file" accept="image/*">
+        <div id="brush-texture-grid" class="brush-texture-grid">
+            <a href="#" id="brush-texture-0" class="brush-texture-grid-item brush-texture-grid-item-active">
+                <img class="brush-texture-grid-image" src="assets/hors.png" />
+            </a>
+        </div>
     </div>
     <div class="brush-slider brush-slider-size">
         <div class="brush-slider-text">

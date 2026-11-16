@@ -821,6 +821,29 @@ function initControls(globals) {
         // $(e.target).blur();
     });
 
+    function brushTextureElementId(textureId) {
+        return 'brush-texture-' + textureId;
+    }
+
+    function brushTextureImageSelector(textureElementId) {
+        return '#' + textureElementId + ' > img';
+    }
+
+    function setBrushTextureLink(textureId, textureUrl) {
+        var textureElementId = brushTextureElementId(textureId);
+
+        setLink(brushTextureImageSelector(textureElementId), function () {
+            var oldTextureId = globals.drawing.brush.getTextureId();
+            var oldTextureElementId = '#' + brushTextureElementId(oldTextureId);
+            $(oldTextureElementId).removeClass('brush-texture-grid-item-active');
+
+            globals.drawing.brush.setTextureById(textureId);
+            $('#brush-texture-image').attr('src', textureUrl);
+
+            $('#' + textureElementId).addClass('brush-texture-grid-item-active');
+        });
+    }
+
     $("#brush-texture").change(function (e) {
         var files = e.target.files;
         if (files.length !== 1) {
@@ -829,12 +852,31 @@ function initControls(globals) {
 
         var textureUrl = URL.createObjectURL(files[0]);
 
+        // # unhighlight the old texture
+        var oldTextureId = globals.drawing.brush.getTextureId();
+        var oldTextureElementId = '#' + brushTextureElementId(oldTextureId);
+        $(oldTextureElementId).removeClass('brush-texture-grid-item-active');
+
+        // # activate the new texture
+        var textureId = globals.drawing.brush.setTextureNew(textureUrl);
+
         // TODO: is this good solution
         // TODO: blob url exposed
         $('#brush-texture-image').attr('src', textureUrl);
 
-        globals.drawing.brush.setTexture(textureUrl);
+        // # construct html for the new texture in the texture grid
+        var img = $('<img>', { class: 'brush-texture-grid-image', src: textureUrl });
+
+        var textureElementId = brushTextureElementId(textureId);
+        var a = $('<a>', { href: '#', id: textureElementId, class: 'brush-texture-grid-item brush-texture-grid-item-active' });
+        a.append(img);
+
+        $('#brush-texture-grid').append(a);
+
+        setBrushTextureLink(textureId, textureUrl);
     });
+
+    setBrushTextureLink(0, 'assets/hors.png');
 
     // TODO: default values
     setSlider("#brush-size", 50, 1, 100, 1, function (brushSize) {
