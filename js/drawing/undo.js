@@ -1,15 +1,15 @@
 function initUndo(globals, globalsDrawing) {
-  function applyStepClear(step) {
+  function applyStepClear(step, frontSideEnable, backSideEnable) {
     var renderer = globals.threeView.renderer;
 
     renderer.setClearColor(step.color);
 
-    if (step.frontSide) {
+    if (frontSideEnable && step.frontSide) {
       renderer.setRenderTarget(globalsDrawing.qRenderTargetFront);
       renderer.clear();
     }
 
-    if (step.backSide) {
+    if (backSideEnable && step.backSide) {
       renderer.setRenderTarget(globalsDrawing.qRenderTargetBack);
       renderer.clear();
     }
@@ -24,29 +24,29 @@ function initUndo(globals, globalsDrawing) {
     globalsDrawing.qMaterial.uniforms.depth_epsilon.value = step.maskingDepthEpsilon;
   }
 
-  function applyStepStamp(step) {
+  function applyStepStamp(step, frontSideEnable, backSideEnable) {
     setCommonUniforms(step);
 
     globalsDrawing.qMaterial.uniforms.brush_center.value = step.maskingCenter;
 
     globalsDrawing.withAutoClearRestore(function () {
-      if (step.frontSide) {
+      if (frontSideEnable && step.frontSide) {
         globalsDrawing.qMaterial.uniforms.flip_normal.value = 1.0;
         globalsDrawing.drawFront(); // TODO: where to put this ?
       }
 
-      if (step.backSide) {
+      if (backSideEnable && step.backSide) {
         globalsDrawing.qMaterial.uniforms.flip_normal.value = -1.0;
         globalsDrawing.drawBack();
       }
     });
   }
 
-  function applyStepDrag(step) {
+  function applyStepDrag(step, frontSideEnable, backSideEnable) {
     setCommonUniforms(step);
 
     globalsDrawing.withAutoClearRestore(function () {
-      if (step.frontSide) {
+      if (frontSideEnable && step.frontSide) {
         globalsDrawing.qMaterial.uniforms.flip_normal.value = 1.0;
 
         // TODO: use instanced rendering
@@ -56,7 +56,7 @@ function initUndo(globals, globalsDrawing) {
         }
       }
 
-      if (step.backSide) {
+      if (backSideEnable && step.backSide) {
         globalsDrawing.qMaterial.uniforms.flip_normal.value = -1.0;
 
         for (var center of step.centers) {
@@ -67,13 +67,13 @@ function initUndo(globals, globalsDrawing) {
     });
   }
 
-  function applyStep(step) {
+  function applyStep(step, frontSideEnable, backSideEnable) {
     if (step.type === 'clear') {
-      applyStepClear(step);
+      applyStepClear(step, frontSideEnable, backSideEnable);
     } else if (step.type === 'stamp') {
-      applyStepStamp(step);
+      applyStepStamp(step, frontSideEnable, backSideEnable);
     } else if (step.type === 'drag') {
-      applyStepDrag(step);
+      applyStepDrag(step, frontSideEnable, backSideEnable);
     }
   }
 
@@ -103,7 +103,9 @@ function initUndo(globals, globalsDrawing) {
     history.push(step);
     currentStep += 1;
 
-    applyStep(step);
+    updateHarbors();
+
+    applyStep(step, true, true);
   }
 
   function makeStepClear(frontSide, backSide, color) {
@@ -156,23 +158,94 @@ function initUndo(globals, globalsDrawing) {
     });
   }
 
+  function updateHarbors() {
+    var step = history[currentStep];
+
+    if (step.type === 'clear') {
+      if (step.frontSide) {
+        lastFrontHarbor = currentStep;
+      }
+
+      if (step.backSide) {
+        lastBackHarbor = currentStep;
+      }
+    }
+  }
+
   function canUndo() {
     return currentStep > 0;
   }
 
-  // undo assumes that the very first step (undex 0) is a step with type clear
+  /**
+   * `undo` assumes that the very first step (undex 0) is a step with type clear.
+   */
   function undo() {
     if (!canUndo()) {
       throw new Error('cannot undo'); // TODO: error handling
     }
 
-    var fromStep = currentStep - 1; // TODO: cache fromStep
-    while (history[fromStep].type !== 'clear') { fromStep -= 1; }
+    /// If the step we are undoing is affecting only one side we do not want to perform any unnecessary work on the other side.
+    ///
+    /// For example if the step we are undoing is affecting only front side we do not:
+    ///  - update the back side harbor
+    ///  - apply any steps on back side
+    /// If some step is affecting both front side and back side, we ignore the back side part of the step.
+    /// We can ignore the back side step because we know that the back side haven't changed between current step and the step before.
+    var undoFront = history[currentStep].frontSide;
+    var undoBack = history[currentStep].backSide;
 
     currentStep -= 1;
 
-    for (var step = fromStep; step <= currentStep; step += 1) {
-      applyStep(history[step]);
+    // # update front harbor
+    if (undoFront && lastFrontHarbor > currentStep) {
+      lastFrontHarbor = currentStep;
+      while (true) {
+        var step = history[lastFrontHarbor];
+        if (step.type === 'clear' && step.frontSide) { break; }
+
+        lastFrontHarbor -= 1;
+      }
+    }
+
+    // # update back harbor
+    if (undoBack && lastBackHarbor > currentStep) {
+      while (true) {
+        var step = history[lastBackHarbor];
+        if (step.type === 'clear' && step.backSide) { break; }
+
+        lastBackHarbor -= 1;
+      }
+    }
+
+    // # apply one side steps
+
+    /// <fromFront, currentStep> is interval of steps which need to be applied on frontside.
+    /// <fromBack, currentStep> is a same interval for back side.
+    ///
+    /// If we are updating only front side (`frontSide` is true and `backSide` is false) we do not need to apply any back side steps.
+    /// We set `fromBack = currentStep + 1`, which makes the back side interval empty.
+    /// This results in the application of only steps from interval <lastFrontHarbor, currentStep> and only their front side portion will be applied.
+    /// (Only the first `for` loop, responsible for front side only application, will be run.)
+    var fromFront = undoFront ? lastFrontHarbor : currentStep + 1;
+    var fromBack = undoBack ? lastBackHarbor : currentStep + 1;
+
+    var maxHarbor = fromBack;
+
+    if (fromFront < fromBack) {
+      for (var tStep = fromFront; tStep < fromBack; tStep += 1) {
+        applyStep(history[tStep], true, false);
+      }
+    } else if (fromFront > fromBack) {
+      for (var tStep = fromBack; tStep < fromFront; tStep += 1) {
+        applyStep(history[tStep], false, true);
+      }
+
+      maxHarbor = fromFront;
+    }
+
+    // # apply both side steps
+    for (var tStep = maxHarbor; tStep <= currentStep; tStep += 1) {
+      applyStep(history[tStep], true, true);
     }
   }
 
@@ -187,11 +260,15 @@ function initUndo(globals, globalsDrawing) {
 
     currentStep += 1;
 
-    applyStep(history[currentStep]);
+    updateHarbors();
+
+    applyStep(history[currentStep], true, true);
   }
 
   var currentStep = -1;
 
+  var lastFrontHarbor = -1; // TODO: could use some optimal data structure
+  var lastBackHarbor = -1;
   var history = [];
 
   return {
