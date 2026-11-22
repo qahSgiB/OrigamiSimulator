@@ -1,5 +1,7 @@
 attribute float instance_index;
 
+uniform float max_instance_count;
+
 uniform mat4 real_model_view;
 uniform mat4 real_projection;
 
@@ -14,5 +16,7 @@ void main() {
 
     instance_index_v = instance_index;
 
-    gl_Position = vec4(uv * 2.0 - 1.0, 0.5, 1.0);
+    float depth = -(instance_index / max_instance_count - 0.5);
+
+    gl_Position = vec4(uv * 2.0 - 1.0, depth, 1.0);
 }

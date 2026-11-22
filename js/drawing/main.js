@@ -47,13 +47,14 @@ function initDrawing(globals) {
   function init(fragmentShader, vertexShader) {
     qCamera = new THREE.OrthographicCamera(-1.0, 1.0, 1.0, -1.0, -1.0, 1.0);
 
-    qRenderTargetFront = new THREE.WebGLRenderTarget(textureSize, textureSize, { depthBuffer: false });
-    qRenderTargetBack = new THREE.WebGLRenderTarget(textureSize, textureSize, { depthBuffer: false });
+    qRenderTargetFront = new THREE.WebGLRenderTarget(textureSize, textureSize);
+    qRenderTargetBack = new THREE.WebGLRenderTarget(textureSize, textureSize);
 
     qMaterial = new THREE.ShaderMaterial({
       vertexShader: vertexShader,
       fragmentShader: fragmentShader,
       uniforms: {
+        max_instance_count: { value: indexes.length },
         real_model_view: { value: new THREE.Matrix4() },
         real_projection: { value: new THREE.Matrix4() },
         brush_center_start: { value: new THREE.Vector2(), },
@@ -137,12 +138,15 @@ function initDrawing(globals) {
   function withAutoClearRestore(callback) {
     var renderer = globals.threeView.renderer;
 
-    var originalAutoClear = renderer.autoClear;
-    renderer.autoClear = false;
+    var originalAutoClearColor = renderer.autoClearColor;
+    var originalAutoClearDepth = renderer.autoClearDepth;
+    renderer.autoClearColor = false;
+    renderer.autoClearDepth = true;
 
     callback();
 
-    renderer.autoClear = originalAutoClear;
+    renderer.autoClearColor = originalAutoClearColor;
+    renderer.autoClearDepth = originalAutoClearDepth;
   }
 
   function setCount(count) {
