@@ -15,55 +15,26 @@ function initUndo(globals, globalsDrawing) {
     }
   }
 
-  function setCommonUniforms(step) {
+  function applyStepBrush(step, frontSideEnable, backSideEnable) {
+    globalsDrawing.qMaterial.uniforms.brush_center_start.value = step.centerStart;
+    globalsDrawing.qMaterial.uniforms.brush_center_delta.value = step.centerDelta;
+
     globalsDrawing.qMaterial.uniforms.brush_radius.value = step.maskingRadius;
     globalsDrawing.qMaterial.uniforms.brush_type.value = step.brushType;
     globalsDrawing.qMaterial.uniforms.brush_color.value = step.brushColor;
     globalsDrawing.qMaterial.uniforms.brush_texture.value = globalsDrawing.brush.getTextureById(step.brushTexture); // TODO: id to three.Texture
     globalsDrawing.qMaterial.uniforms.brush_min_angle_cos.value = step.maskingMinAngleCos;
     globalsDrawing.qMaterial.uniforms.depth_epsilon.value = step.maskingDepthEpsilon;
-  }
-
-  function applyStepStamp(step, frontSideEnable, backSideEnable) {
-    setCommonUniforms(step);
-
-    globalsDrawing.qMaterial.uniforms.brush_center.value = step.maskingCenter;
 
     globalsDrawing.withAutoClearRestore(function () {
       if (frontSideEnable && step.frontSide) {
         globalsDrawing.qMaterial.uniforms.flip_normal.value = 1.0;
-        globalsDrawing.drawFront(); // TODO: where to put this ?
+        globalsDrawing.drawFront(step.count); // TODO: where to put this ?
       }
 
       if (backSideEnable && step.backSide) {
         globalsDrawing.qMaterial.uniforms.flip_normal.value = -1.0;
-        globalsDrawing.drawBack();
-      }
-    });
-  }
-
-  function applyStepDrag(step, frontSideEnable, backSideEnable) {
-    setCommonUniforms(step);
-
-    // TODO: when applying multiple steps in undo, the `withAutoClearRestore` is called multiple times (one time per step) but could be called only once
-    globalsDrawing.withAutoClearRestore(function () {
-      if (frontSideEnable && step.frontSide) {
-        globalsDrawing.qMaterial.uniforms.flip_normal.value = 1.0;
-
-        // TODO: use instanced rendering
-        for (var center of step.centers) {
-          globalsDrawing.qMaterial.uniforms.brush_center.value = center;
-          globalsDrawing.drawFront();
-        }
-      }
-
-      if (backSideEnable && step.backSide) {
-        globalsDrawing.qMaterial.uniforms.flip_normal.value = -1.0;
-
-        for (var center of step.centers) {
-          globalsDrawing.qMaterial.uniforms.brush_center.value = center;
-          globalsDrawing.drawBack();
-        }
+        globalsDrawing.drawBack(step.count);
       }
     });
   }
@@ -81,19 +52,17 @@ function initUndo(globals, globalsDrawing) {
   }
 
   function applyStep(step, frontSideEnable, backSideEnable) {
-    if (step.type === 'clear') {
+    if (step.type === 'brush') {
+      applyStepBrush(step, frontSideEnable, backSideEnable);
+    } else if (step.type === 'clear') {
       applyStepClear(step, frontSideEnable, backSideEnable);
-    } else if (step.type === 'stamp') {
-      applyStepStamp(step, frontSideEnable, backSideEnable);
-    } else if (step.type === 'drag') {
-      applyStepDrag(step, frontSideEnable, backSideEnable);
     } else if (step.type === 'snapshot') {
       applyStepSnapshot(step, frontSideEnable, backSideEnable);
     }
   }
 
   function maybeUnuseTexture(step) {
-    if (step.type === 'stamp' || step.type === 'drag') {
+    if (step.type === 'brush') {
       globalsDrawing.brush.textureUnuse(step.brushTexture);
     }
   }
@@ -125,41 +94,19 @@ function initUndo(globals, globalsDrawing) {
   }
 
   // TODO: missing: positions, uvs, MV, P, depth texture
-  function makeStepStamp(
+  function makeStepBrush(
     frontSide, backSide,
-    maskingCenter, maskingRadius, maskingDepthEpsilon, maskingMinAngleCos,
-    brushType, brushColor, brushTexture,
-  ) {
-    var step = {
-      type: 'stamp',
-      frontSide: frontSide,
-      backSide: backSide,
-      maskingCenter: maskingCenter,
-      maskingRadius: maskingRadius,
-      maskingDepthEpsilon: maskingDepthEpsilon,
-      maskingMinAngleCos: maskingMinAngleCos,
-      brushType: brushType,
-      brushColor: brushColor,
-      brushTexture: brushTexture,
-    };
-
-    historyAddStep(step);
-    applyStepStamp(step, true, true);
-    globalsDrawing.brush.textureUse(brushTexture);
-  }
-
-  // TODO: missing: positions, uvs, MV, P, depth texture
-  function makeStepDrag(
-    frontSide, backSide,
-    centers,
+    count, centerStart, centerDelta,
     maskingRadius, maskingDepthEpsilon, maskingMinAngleCos,
     brushType, brushColor, brushTexture,
   ) {
     var step = {
-      type: 'drag',
+      type: 'brush',
       frontSide: frontSide,
       backSide: backSide,
-      centers: centers,
+      count: count,
+      centerStart: centerStart,
+      centerDelta: centerDelta,
       maskingRadius: maskingRadius,
       maskingDepthEpsilon: maskingDepthEpsilon,
       maskingMinAngleCos: maskingMinAngleCos,
@@ -169,7 +116,7 @@ function initUndo(globals, globalsDrawing) {
     };
 
     historyAddStep(step);
-    applyStepDrag(step, true, true);
+    applyStepBrush(step, true, true);
     globalsDrawing.brush.textureUse(brushTexture);
   }
 
@@ -362,6 +309,22 @@ function initUndo(globals, globalsDrawing) {
     // console.log('debug 2 redo end');
   }
 
+  function totalDrawCalls() {
+    var drawCalls = 0;
+    var drawCallsInstanced = 0;
+
+    for (var i = 0; i < history.length; i++) {
+      var step = history[i];
+
+      if (step.type === 'brush') {
+        drawCalls += step.count;
+        drawCallsInstanced += 1;
+      }
+    }
+
+    return [drawCalls, drawCallsInstanced];
+  }
+
   var currentStep = -1;
 
   var lastFrontHarbor = -1; // TODO: could use some optimal data structure
@@ -370,11 +333,11 @@ function initUndo(globals, globalsDrawing) {
 
   return {
     makeStepClear: makeStepClear,
-    makeStepStamp: makeStepStamp,
-    makeStepDrag: makeStepDrag,
+    makeStepBrush: makeStepBrush,
     makeSnapshot: makeSnapshot,
     undo: undo,
     redo: redo,
     history: history, // TODO: debug
+    totalDrawCalls: totalDrawCalls, // TODO: debug
   }
 }

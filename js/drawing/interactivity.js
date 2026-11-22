@@ -17,10 +17,14 @@ function initInteractivity(globals, globalsDrawing) {
     globalsDrawing.undo.makeStepClear(frontSideEnabled, backSideEnabled, clearColor);
   }
 
-  function mouseToClip(mouse) {
+  function mouseToClipPoint(mouse) {
+    return mouseToClipVector(mouse).add(new THREE.Vector2(-1.0, 1.0));
+  }
+
+  function mouseToClipVector(mouse) {
     return new THREE.Vector2(
-      2.0 * mouse.x / window.innerWidth - 1.0,
-      -2.0 * mouse.y / window.innerHeight + 1.0
+      2.0 * mouse.x / window.innerWidth,
+      -2.0 * mouse.y / window.innerHeight
     );
   }
 
@@ -33,34 +37,57 @@ function initInteractivity(globals, globalsDrawing) {
     var d = to.clone().sub(from);
     var l = d.length();
     var count = Math.round(l / spacingPixel);
-    var step = d.clone().normalize().multiplyScalar(spacingPixel);
 
-    var centers = [];
-
-    for (var step_index = 1; step_index <= count; step_index++) {
-      var center = from.clone().add(step.clone().multiplyScalar(step_index));
-      centers.push(mouseToClip(center));
+    if (count === 0) {
+      return from;
     }
+
+    var step = d.clone().normalize().multiplyScalar(spacingPixel);
+    var delta = mouseToClipVector(step);
 
     var brushUniforms = globalsDrawing.brush.getUniforms();
 
-    globalsDrawing.undo.makeStepDrag(
-      frontSideEnabled, backSideEnabled,
-      centers,
-      brushUniforms.radius, brushUniforms.depthEpsilon, brushUniforms.minAngleCos,
-      brushUniforms.type, brushUniforms.color, brushUniforms.texture,
-    );
+    var maxInstanceCount = globalsDrawing.getMaxInstanceCount();
+
+    var bigCount = Math.floor(count / maxInstanceCount);
+
+    for (var i = 0; i < bigCount; i += 1) {
+      var start = mouseToClipPoint(from.clone().add(step.clone().multiplyScalar(1 + i * maxInstanceCount)));
+
+      globalsDrawing.undo.makeStepBrush(
+        frontSideEnabled, backSideEnabled,
+        maxInstanceCount, start, delta,
+        brushUniforms.radius, brushUniforms.depthEpsilon, brushUniforms.minAngleCos,
+        brushUniforms.type, brushUniforms.color, brushUniforms.texture,
+      );
+    }
+
+    var smallCount = count % maxInstanceCount;
+
+    if (smallCount > 0) {
+      var start = mouseToClipPoint(from.clone().add(step.clone().multiplyScalar(1 + bigCount * maxInstanceCount)));
+
+      globalsDrawing.undo.makeStepBrush(
+        frontSideEnabled, backSideEnabled,
+        smallCount, start, delta,
+        brushUniforms.radius, brushUniforms.depthEpsilon, brushUniforms.minAngleCos,
+        brushUniforms.type, brushUniforms.color, brushUniforms.texture,
+      );
+    }
 
     return from.clone().add(step.clone().multiplyScalar(count));
   }
 
   function drawStamp(mouse) {
     var brushUniforms = globalsDrawing.brush.getUniforms();
-    var center = mouseToClip(mouse);
 
-    globalsDrawing.undo.makeStepStamp(
+    var center = mouseToClipPoint(mouse);
+    var delta = new THREE.Vector2();
+
+    globalsDrawing.undo.makeStepBrush(
       frontSideEnabled, backSideEnabled,
-      center, brushUniforms.radius, brushUniforms.depthEpsilon, brushUniforms.minAngleCos,
+      1, center, delta,
+      brushUniforms.radius, brushUniforms.depthEpsilon, brushUniforms.minAngleCos,
       brushUniforms.type, brushUniforms.color, brushUniforms.texture,
     );
   }

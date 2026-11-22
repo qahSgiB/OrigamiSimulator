@@ -1,7 +1,8 @@
 #extension GL_OES_standard_derivatives : enable
 
-// bursh
-uniform vec2 brush_center;
+// brush
+uniform vec2 brush_center_start;
+uniform vec2 brush_center_delta;
 uniform vec2 brush_radius;
 uniform int brush_type;
 uniform vec3 brush_color;
@@ -17,11 +18,14 @@ uniform float flip_normal;
 
 varying vec4 view_pos;
 varying vec4 ndc_pos;
+varying float instance_index_v;
 
 
 void main() {
     // constants
     float DEPTH_TEST_DISABLE = -69.0;
+
+    vec2 brush_center = brush_center_start + brush_center_delta * instance_index_v;
 
     vec3 screen_pos = ndc_pos.xyz / ndc_pos.w;
     vec2 brush_pos = (screen_pos.xy - brush_center) / brush_radius;

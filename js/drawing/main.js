@@ -56,7 +56,8 @@ function initDrawing(globals) {
       uniforms: {
         real_model_view: { value: new THREE.Matrix4() },
         real_projection: { value: new THREE.Matrix4() },
-        brush_center: { value: new THREE.Vector2(), },
+        brush_center_start: { value: new THREE.Vector2(), },
+        brush_center_delta: { value: new THREE.Vector2(), },
         brush_radius: { value: new THREE.Vector2(), },
         brush_type: { value: 0, },
         brush_color: { value: new THREE.Vector3(), },
@@ -79,7 +80,7 @@ function initDrawing(globals) {
 
     qScene = new THREE.Scene();
 
-    var geometry = globals.model.getGeometry();
+    var geometry = createGeometry(globals.model.getGeometry());
     qQuad = new THREE.Mesh(geometry, qMaterial);
 
     qScene.add(qQuad);
@@ -107,9 +108,22 @@ function initDrawing(globals) {
     globalsDrawing.undo.makeStepClear(true, true, globalsDrawing.interactivity.getClearColor());
   }
 
+  function createGeometry(geometry) {
+    // `copy` does a deep copy of the attributes, which means that the position will no longer change as the model changes.
+    // Because of that we need to manually set to position attribute to the position attribute of the original geometry.
+    // TODO: remove the `copy` and figure out what needs to be maunally copied from the original geometry in order for the new geometry to work
+    var instancedGeometry = new THREE.InstancedBufferGeometry().copy(geometry);
+
+    instancedGeometry.addAttribute('position', geometry.attributes.position);
+    instancedGeometry.addAttribute('uv', geometry.attributes.uv);
+    instancedGeometry.addAttribute('instance_index', instanceIndexAttribute);
+
+    return instancedGeometry;
+  }
+
   function updateGeometry(geometry) {
     if (qQuad !== undefined) {
-      qQuad.geometry = geometry;
+      qQuad.geometry = createGeometry(geometry);
     }
   }
 
@@ -131,11 +145,17 @@ function initDrawing(globals) {
     renderer.autoClear = originalAutoClear;
   }
 
-  function drawFront() {
+  function setCount(count) {
+    qQuad.geometry.maxInstancedCount = count;
+  }
+
+  function drawFront(count) {
+    setCount(count);
     globals.threeView.renderer.render(qScene, qCamera, qRenderTargetFront);
   }
 
-  function drawBack() {
+  function drawBack(count) {
+    setCount(count);
     globals.threeView.renderer.render(qScene, qCamera, qRenderTargetBack);
   }
 
@@ -169,6 +189,10 @@ function initDrawing(globals) {
     var backTexture = lubimThreeJsCopyTexture(qRenderTargetBack);
 
     globalsDrawing.undo.makeSnapshot(frontTexture, backTexture);
+  }
+
+  function getMaxInstanceCount() {
+    return indexes.length;
   }
 
   function resetControlsValues() {
@@ -221,6 +245,14 @@ function initDrawing(globals) {
   var initFrontSideEnabled = true;
   var initBackSideEnabled = false;
 
+  // # instance index attribute
+  var indexes = new Float32Array(512);
+  for (var i = 0; i < indexes.length; i += 1) {
+    indexes[i] = i;
+  }
+
+  var instanceIndexAttribute = new THREE.InstancedBufferAttribute(indexes, 1);
+
 
   var globalsDrawing = {
     textureFront: undefined,
@@ -234,12 +266,13 @@ function initDrawing(globals) {
     withAutoClearRestore: withAutoClearRestore,
     drawFront: drawFront,
     drawBack: drawBack,
+    copyTextureFront: copyTextureFront,
+    copyTextureBack: copyTextureBack,
+    getMaxInstanceCount: getMaxInstanceCount,
     resetControlsValues: resetControlsValues,
     start: start,
     end: end,
     makeSnapshot: makeSnapshot, // TODO: debug
-    copyTextureFront: copyTextureFront,
-    copyTextureBack: copyTextureBack,
   }
 
   globalsDrawing.brush = initBrush(globals, globalsDrawing);
