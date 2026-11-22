@@ -326,6 +326,14 @@ function initUndo(globals, globalsDrawing) {
     // console.log('debug 2 redo end');
   }
 
+  function getState() {
+    return {
+      currentStep: currentStep,
+      lastFrontHarbor: lastFrontHarbor,
+      lastBackHarbor: lastBackHarbor,
+    };
+  }
+
   function totalDrawCalls() {
     var drawCalls = 0;
     var drawCallsInstanced = 0;
@@ -355,6 +363,7 @@ function initUndo(globals, globalsDrawing) {
     resetWithSnapshot: resetWithSnapshot,
     undo: undo,
     redo: redo,
+    getState: getState,
     history: history, // TODO: debug
     totalDrawCalls: totalDrawCalls, // TODO: debug
   }

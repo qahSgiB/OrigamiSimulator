@@ -60,6 +60,8 @@ function initInteractivity(globals, globalsDrawing) {
         brushUniforms.radius, brushUniforms.depthEpsilon, brushUniforms.minAngleCos,
         brushUniforms.type, brushUniforms.color, brushUniforms.texture,
       );
+
+      maybeMakeSnapshot();
     }
 
     var smallCount = count % maxInstanceCount;
@@ -73,6 +75,8 @@ function initInteractivity(globals, globalsDrawing) {
         brushUniforms.radius, brushUniforms.depthEpsilon, brushUniforms.minAngleCos,
         brushUniforms.type, brushUniforms.color, brushUniforms.texture,
       );
+
+      maybeMakeSnapshot();
     }
 
     return from.clone().add(step.clone().multiplyScalar(count));
@@ -90,6 +94,19 @@ function initInteractivity(globals, globalsDrawing) {
       brushUniforms.radius, brushUniforms.depthEpsilon, brushUniforms.minAngleCos,
       brushUniforms.type, brushUniforms.color, brushUniforms.texture,
     );
+
+    maybeMakeSnapshot();
+  }
+
+  function maybeMakeSnapshot() {
+    var undoState = globalsDrawing.undo.getState();
+    var harborDistance = undoState.currentStep - Math.min(undoState.lastFrontHarbor, undoState.lastBackHarbor);
+
+    if (harborDistance >= snapshotRate) {
+      globalsDrawing.makeSnapshot();
+
+      snapshotCounter = 0;
+    }
   }
 
   function onMouseMove(event) {
@@ -139,6 +156,8 @@ function initInteractivity(globals, globalsDrawing) {
   var stampingMode = undefined;
 
   var clearColor = undefined;
+
+  var snapshotRate = 30; // TODO: tweak this value
 
   var mouseButtonToDraw = 2;
   var lastMouse = undefined;
