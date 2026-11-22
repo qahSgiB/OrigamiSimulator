@@ -147,6 +147,23 @@ function initUndo(globals, globalsDrawing) {
     updateHarbors(frontSide, backSide);
   }
 
+  function resetWithSnapshot(frontTexture, backTexture) {
+    var step = {
+      type: 'snapshot',
+      frontSide: true,
+      backSide: true,
+      frontTexture: frontTexture,
+      backTexture: backTexture,
+    };
+
+    history.length = 0;
+    history.push(step);
+
+    currentStep = 0;
+    lastBackHarbor = 0;
+    lastFrontHarbor = 0;
+  }
+
   function stepIsHarbor(stepType) {
     return stepType === 'clear' || stepType === 'snapshot';
   }
@@ -335,6 +352,7 @@ function initUndo(globals, globalsDrawing) {
     makeStepClear: makeStepClear,
     makeStepBrush: makeStepBrush,
     makeSnapshot: makeSnapshot,
+    resetWithSnapshot: resetWithSnapshot,
     undo: undo,
     redo: redo,
     history: history, // TODO: debug
