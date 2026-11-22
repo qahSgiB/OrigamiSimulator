@@ -1,15 +1,21 @@
 function initExport(globals, globalsDrawing) {
+  function renderTargetToArray(renderTarget, size) {
+    var textureBuffer = new Uint8Array(size * size * 4);
+
+    globals.threeView.renderer.readRenderTargetPixels(
+      renderTarget,
+      0, 0, size, size,
+      textureBuffer
+    );
+
+    return textureBuffer;
+  }
+
   function textoreToPngBlob(renderTarget, cont) {
     var textureSize = globalsDrawing.textureSize;
 
     // # copy texture from gpu
-    var textureBuffer = new Uint8Array(textureSize * textureSize * 4);
-
-    globals.threeView.renderer.readRenderTargetPixels(
-      renderTarget,
-      0, 0, textureSize, textureSize,
-      textureBuffer
-    );
+    var textureBuffer = renderTargetToArray(renderTarget, textureSize);
 
     // # put the texture on canvas
     var canvas = document.createElement('canvas');
@@ -119,6 +125,7 @@ function initExport(globals, globalsDrawing) {
   var exportTransform = undefined;
 
   return {
+    renderTargetToArray: renderTargetToArray,
     saveTexturePng: saveTexturePng,
     saveTexturePdf: saveTexturePdf,
     setExportTransform: setExportTransform,

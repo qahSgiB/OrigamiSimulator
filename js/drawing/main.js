@@ -47,8 +47,6 @@ function initDrawing(globals) {
   function init(fragmentShader, vertexShader) {
     qCamera = new THREE.OrthographicCamera(-1.0, 1.0, 1.0, -1.0, -1.0, 1.0);
 
-    qScene = new THREE.Scene();
-
     qRenderTargetFront = new THREE.WebGLRenderTarget(textureSize, textureSize, { depthBuffer: false });
     qRenderTargetBack = new THREE.WebGLRenderTarget(textureSize, textureSize, { depthBuffer: false });
 
@@ -79,10 +77,24 @@ function initDrawing(globals) {
       side: THREE.DoubleSide,
     });
 
+    qScene = new THREE.Scene();
+
     var geometry = globals.model.getGeometry();
     qQuad = new THREE.Mesh(geometry, qMaterial);
 
     qScene.add(qQuad);
+
+    qSceneCT = new THREE.Scene();
+
+    var geometryCT = new THREE.PlaneGeometry(2, 2);
+    qMaterialCT = new THREE.MeshBasicMaterial({
+      flatShading: true,
+      side: THREE.DoubleSide,
+      color: '#ffffff',
+    });
+    var qQuadCT = new THREE.Mesh(geometryCT, qMaterialCT);
+
+    qSceneCT.add(qQuadCT);
 
     globalsDrawing.qMaterial = qMaterial;
     globalsDrawing.qRenderTargetFront = qRenderTargetFront;
@@ -120,15 +132,43 @@ function initDrawing(globals) {
   }
 
   function drawFront() {
-    var renderer = globals.threeView.renderer;
-
-    renderer.render(qScene, qCamera, qRenderTargetFront);
+    globals.threeView.renderer.render(qScene, qCamera, qRenderTargetFront);
   }
 
   function drawBack() {
-    var renderer = globals.threeView.renderer;
+    globals.threeView.renderer.render(qScene, qCamera, qRenderTargetBack);
+  }
 
-    renderer.render(qScene, qCamera, qRenderTargetBack);
+  function copyTextureFront(texture) {
+    qMaterialCT.map = texture;
+    qMaterialCT.needsUpdate = true;
+
+    globals.threeView.renderer.render(qSceneCT, qCamera, qRenderTargetFront);
+  }
+
+  function copyTextureBack(texture) {
+    qMaterialCT.map = texture;
+    qMaterialCT.needsUpdate = true;
+
+    globals.threeView.renderer.render(qSceneCT, qCamera, qRenderTargetBack);
+  }
+
+  function lubimThreeJsCopyTexture(renderTarget) {
+    // this unnecessarily copies the texture through CPU
+    // it would be far more efficient to copy it directly on gpu but THREE.js
+
+    var pixels = globalsDrawing.export.renderTargetToArray(renderTarget, textureSize);
+    var newTexture = new THREE.DataTexture(pixels, textureSize, textureSize, THREE.RGBAFormat);
+    newTexture.needsUpdate = true;
+
+    return newTexture;
+  }
+
+  function makeSnapshot() {
+    var frontTexture = lubimThreeJsCopyTexture(qRenderTargetFront);
+    var backTexture = lubimThreeJsCopyTexture(qRenderTargetBack);
+
+    globalsDrawing.undo.makeSnapshot(frontTexture, backTexture);
   }
 
   function resetControlsValues() {
@@ -155,12 +195,16 @@ function initDrawing(globals) {
   function end() {}
 
 
+  // for rendering of the brush into the object's texture
   var qCamera = undefined;
   var qScene = undefined;
   var qQuad = undefined;
   var qRenderTargetFront = undefined;
   var qRenderTargetBack = undefined;
   var qMaterial = undefined;
+  // for copying of an arbitary texture into the object's texture
+  var qSceneCT = undefined;
+  var qMaterialCT = undefined;
 
   var textureSize = 2048;
 
@@ -193,6 +237,9 @@ function initDrawing(globals) {
     resetControlsValues: resetControlsValues,
     start: start,
     end: end,
+    makeSnapshot: makeSnapshot, // TODO: debug
+    copyTextureFront: copyTextureFront,
+    copyTextureBack: copyTextureBack,
   }
 
   globalsDrawing.brush = initBrush(globals, globalsDrawing);
