@@ -1278,8 +1278,8 @@
 </div>
 <div id="svgViewer"></div>
 <div id="helper">Load more origami patterns here!</div>
-<div id="controlsBottom">
-    <div id="viewToggle" class="toggle">
+<div id="controlsBottom" class="controlsBottom">
+    <div class="toggle">
         <div class="toggleControls">
             <a href="#" id="colorToggle" class="toggleButton toggleButtonActive">
                 <img class="toggleButtonImage" src="assets/icons/view/color-small.png"/>
@@ -1298,7 +1298,7 @@
         </div>
         <span class="toggleTitle">View Mode</span>
     </div>
-    <div id="bottomSliderContainer">
+    <div id="bottomSliderContainer" class="bottomSliderContainer">
         <div class="sliderInput" id="creasePercentBottom">
             <div class="flat-slider ui-slider ui-corner-all ui-slider-horizontal ui-widget ui-widget-content"></div>
         </div>
@@ -1314,7 +1314,7 @@
         </a>
         <span>Fold Percent: <span id="foldPercentSimple"></span>%</span>
     </div>
-    <div id="controlsToggle" class="toggle">
+    <div class="toggle">
         <div class="toggleControls">
             <a href="#" id="orbitToggle" class="toggleButton toggleButtonActive">
                 <img class="toggleButtonImage" src="assets/icons/control/rotate-small.png"/>
@@ -1333,7 +1333,11 @@
         </div>
         <span class="toggleTitle">Control Mode</span>
     </div>
-    <a href="#" id="resetBottom" class="btn btn-lg btn-default">Reset</a>
+    <div class="bottomSimulationControls">
+        <a href="#" id="bottomReset" class="btn btn-lg btn-default btn-milujem-css bottomReset">Reset</a>
+        <a href="#" id="bottomPlay" class="btn btn-lg btn-success btn-milujem-css bottomPlayPause bottomPlay" style="display: none;">Play</a>
+        <a href="#" id="bottomPause" class="btn btn-lg btn-warning btn-milujem-css bottomPlayPause bottomPause">Pause</a>
+    </div>
 </div>
 <div id="controlsLeft" class="flipped">
     <div>

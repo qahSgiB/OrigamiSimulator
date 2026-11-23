@@ -52,27 +52,36 @@ p {
     display: inline-block;
 }
 
-#controlsBottom {
-    width: 100%;
-    min-width: 975px;
-    max-width: 1050px;
-    margin: auto;
+.controlsBottom {
     position: absolute;
     bottom: 0;
-    right: 0;
-    left: 0;
-    height: 110px;
-    font-weight: 900;
+
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: center;
+
+    padding-bottom: 10px;
+    padding-left: 50px;
+    padding-right: 50px;
+
+    font-weight: 900; /* TODO */
 }
 
+.bottomSliderContainer {
+    position: relative;
 
-#bottomSliderContainer {
+    min-width: 175px;
+    max-width: 300px;
+    flex-grow: 1;
+
+    margin: 0 50px;
+
     text-align: center;
-    position: absolute;
-    right: 420px;
-    left: 290px;
-    margin-top: 20px;
 }
+
+
 #bottomSliderContainer > span {
     font-size: 14px;
 }
@@ -114,17 +123,6 @@ p {
     color: #34495e;
     display: block;
     /*margin-top: 30px;*/
-}
-
-
-#viewToggle {
-    position: absolute;
-    left: 30px;
-}
-
-#controlsToggle {
-    position: absolute;
-    right: 140px;
 }
 
 .toggle {
@@ -189,10 +187,24 @@ p {
     padding-top: 2px;
 }
 
-#resetBottom {
-    position: absolute;
-    right: 30px;
-    top: 13px;
+.bottomSimulationControls {
+    margin-left: 30px;
+    margin-top: 12px; /* TODO: manually computed to center */
+    align-self: flex-start;
+
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+}
+
+.bottomReset {
+    color: #34495e;
+    font-weight: 900;
+}
+
+.bottomPlayPause {
+    width: 90px;
+
     color: #34495e;
     font-weight: 900;
 }
@@ -1183,4 +1195,13 @@ object {
 .drawing-reset-text:hover {
     background-color: rgb(255, 215, 0);
     color: rgb(40, 40, 40);
+}
+
+/* try removing the class, you'll see whats the problem, or maybe not because on the original page everything works fine */
+a.btn-milujem-css {
+    transition: none;
+}
+
+a.btn-milujem-css:visited, a.btn-milujem-css:focus {
+    color: #34495e;
 }

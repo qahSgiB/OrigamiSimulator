@@ -661,24 +661,48 @@ function initControls(globals) {
         globals.vrEnabled = val;
     });
 
-    setLink("#start", function() {
+    function simulationPause() {
+        $("#start").css('display', 'inline-block');
+        $("#pause").hide();
+        $("#stepForwardOptions").css('display', 'inline-block');
+
+        $("#bottomPlay").show();
+        $("#bottomPause").hide();
+
+        globals.model.pause();
+    }
+
+    function simulationResume() {
         $("#pause").css('display', 'inline-block');
         $("#reset").css('display', 'inline-block');
         $("#start").hide();
         $("#stepForwardOptions").hide();
+
+        $("#bottomPlay").hide();
+        $("#bottomPause").show();
+
         globals.model.resume();
+    }
+
+    setLink("#bottomPlay", function() {
+        simulationResume();
+    });
+
+    setLink("#bottomPause", function() {
+        simulationPause();
+    });
+
+    setLink("#start", function() {
+        simulationResume();
     });
     setLink("#pause", function() {
-        $("#start").css('display', 'inline-block');
-        $("#stepForwardOptions").css('display', 'inline-block');
-        $("#pause").hide();
-        globals.model.pause();
+        simulationPause();
     });
     setLink("#reset", function() {
         if (!globals.simulationRunning) $("#reset").hide();
         globals.model.reset();
     });
-    setLink("#resetBottom", function() {
+    setLink("#bottomReset", function() {
         globals.model.reset();
     });
     setLink("#stepForward", function() {
@@ -720,6 +744,8 @@ function initControls(globals) {
             globals.rotateModel = null;
             globals.threeView.resetModel();
             globals.drawing.start();
+
+            simulationPause();
         }
     }
 
