@@ -93,6 +93,15 @@ function initUndo(globals, globalsDrawing) {
     updateHarbors(frontSide, backSide);
   }
 
+  // currently undo is destroyed on following events:
+  //  - camera movement = MV, P, depth texture
+  //     - `control.on('change', ...)`
+  //     - `onWindowResize`
+  //  - simulation progress = positions, depth texture
+  //     - reset on pause (after the simulation has been running)
+  //     - disabled when simulation is running // TODO
+  //  - model change = positions, uvs, depth texture
+  //     - `sync`
   // TODO: missing: positions, uvs, MV, P, depth texture
   function makeStepBrush(
     frontSide, backSide,
@@ -100,6 +109,10 @@ function initUndo(globals, globalsDrawing) {
     maskingRadius, maskingDepthEpsilon, maskingMinAngleCos,
     brushType, brushColor, brushTexture,
   ) {
+    if (history.length === 0) {
+      globalsDrawing.makeSnapshot();
+    }
+
     var step = {
       type: 'brush',
       frontSide: frontSide,
@@ -126,7 +139,11 @@ function initUndo(globals, globalsDrawing) {
    * This is also assumed.
    */
   function makeSnapshot(frontTexture, backTexture) {
-    if (history[currentStep].type === 'snapshot') {
+    if (history.length === 0) {
+      if (frontTexture === undefined || backTexture === undefined) {
+        throw new Error('makeSnapshot creating a first undo entry but at least one of the textures is undefined'); // TODO: error handling
+      }
+    } else if (history[currentStep].type === 'snapshot') {
       throw new Error('makeSnapshot would result into two consecutive snapshots'); // TODO: error handling
     }
 
@@ -147,21 +164,12 @@ function initUndo(globals, globalsDrawing) {
     updateHarbors(frontSide, backSide);
   }
 
-  function resetWithSnapshot(frontTexture, backTexture) {
-    var step = {
-      type: 'snapshot',
-      frontSide: true,
-      backSide: true,
-      frontTexture: frontTexture,
-      backTexture: backTexture,
-    };
-
+  function reset() {
     history.length = 0;
-    history.push(step);
 
-    currentStep = 0;
-    lastBackHarbor = 0;
-    lastFrontHarbor = 0;
+    currentStep = -1;
+    lastBackHarbor = -1;
+    lastFrontHarbor = -1;
   }
 
   function stepIsHarbor(stepType) {
@@ -360,7 +368,7 @@ function initUndo(globals, globalsDrawing) {
     makeStepClear: makeStepClear,
     makeStepBrush: makeStepBrush,
     makeSnapshot: makeSnapshot,
-    resetWithSnapshot: resetWithSnapshot,
+    reset: reset,
     undo: undo,
     redo: redo,
     getState: getState,

@@ -669,6 +669,10 @@ function initControls(globals) {
         $("#bottomPlay").show();
         $("#bottomPause").hide();
 
+        if (globals.simulationRunning) {
+            globals.drawing.undo.reset(); // undo destroy after running the simulation
+        }
+
         globals.model.pause();
     }
 
@@ -1032,7 +1036,7 @@ function initControls(globals) {
     });
 
     setLink("#drawing-history-reset", function () {
-        globals.drawing.resetHistory();
+        globals.drawing.undo.reset();
     });
 
 

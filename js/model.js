@@ -438,6 +438,7 @@ function initModel(globals) {
         syncSolver();
 
         globals.drawing.updateGeometry(geometry);
+        globals.drawing.undo.reset(); // undo destroy on model change
 
         globals.needsSync = false;
         if (!globals.simulationRunning) reset();

@@ -195,13 +195,6 @@ function initDrawing(globals) {
     globalsDrawing.undo.makeSnapshot(frontTexture, backTexture);
   }
 
-  function resetHistory() {
-    var frontTexture = lubimThreeJsCopyTexture(qRenderTargetFront);
-    var backTexture = lubimThreeJsCopyTexture(qRenderTargetBack);
-
-    globalsDrawing.undo.resetWithSnapshot(frontTexture, backTexture);
-  }
-
   function getMaxInstanceCount() {
     return indexes.length;
   }
@@ -279,7 +272,6 @@ function initDrawing(globals) {
     drawBack: drawBack,
     copyTextureFront: copyTextureFront,
     copyTextureBack: copyTextureBack,
-    resetHistory: resetHistory,
     getMaxInstanceCount: getMaxInstanceCount,
     resetControlsValues: resetControlsValues,
     start: start,

@@ -64,7 +64,10 @@ function initThreeView(globals) {
         controls.dynamicDampingFactor = 0.3;
         controls.minDistance = 1;
 	    controls.maxDistance = 30;
-        // controls.addEventListener("change", render);
+
+        controls.addEventListener("change", function () {
+            globals.drawing.undo.reset(); // undo destroy on camera movement
+        });
 
         _render(); // render before model loads
 
@@ -184,6 +187,8 @@ function initThreeView(globals) {
         renderer.setSize(width, height);
 
         controls.handleResize();
+
+        globals.drawing.undo.reset(); // undo destroy on window resize
     }
 
     function enableControls(state) {

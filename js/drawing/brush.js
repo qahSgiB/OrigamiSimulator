@@ -67,7 +67,6 @@ function initBrush(globals, globalsDrawing) {
   // radius: in pixels
   function setMaskingRadius(ehRadius) {
     radius = ehRadius;
-    radiusVector = new THREE.Vector2(2.0 * radius / window.innerWidth, 2.0 * radius / window.innerHeight);
   }
 
   // angle: in radians
@@ -95,7 +94,6 @@ function initBrush(globals, globalsDrawing) {
     if (texture.usageCount > 1) {
       texture.usageCount -= 1;
     } else {
-      console.log(`debug 1 texture disposed, id : ${textureId}`); // TODO: debug
       texture.texture.dispose();
       delete textures[textureId];
     }
@@ -105,7 +103,7 @@ function initBrush(globals, globalsDrawing) {
     return {
       type: typeWithEraser,
       color: colorWithEraser,
-      radius: radiusVector,
+      radius: new THREE.Vector2(2.0 * radius / window.innerWidth, 2.0 * radius / window.innerHeight), // TODO: not remembered because window size may change, better solution
       depthEpsilon: depthEpsilon,
       minAngleCos: minAngleCos,
       texture: textureId,
@@ -126,7 +124,6 @@ function initBrush(globals, globalsDrawing) {
   var textureId = undefined;
 
   var radius = undefined;
-  var radiusVector = undefined;
   var minAngleCos = undefined;
   var depthEpsilon = undefined;
 
