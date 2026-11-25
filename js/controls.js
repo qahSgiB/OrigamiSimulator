@@ -675,7 +675,7 @@ function initControls(globals) {
 
         if (globals.simulationRunning) {
             globals.drawing.undo.reset(); // undo destroy after running the simulation
-            globals.controls.updateHistoryButtons();
+            updateHistoryButtons();
         }
 
         globals.model.pause();
@@ -691,6 +691,8 @@ function initControls(globals) {
         $("#bottomPause").show();
 
         globals.model.resume();
+
+        updateHistoryButtons();
     }
 
     setLink("#bottomPlay", function() {
@@ -1039,11 +1041,11 @@ function initControls(globals) {
     });
 
     function updateHistoryButtons() {
-        var canUndo = globals.drawing.undo.canUndo();
+        var canUndo = !globals.simulationRunning && globals.drawing.undo.canUndo();
         $("#drawing-undo").toggleClass("drawing-undo-disabled", !canUndo);
         $("#drawing-undo .drawing-undo-text").toggleClass("drawing-undo-text-disabled", !canUndo);
 
-        var canRedo = globals.drawing.undo.canRedo();
+        var canRedo = !globals.simulationRunning && globals.drawing.undo.canRedo();
         $("#drawing-redo").toggleClass("drawing-undo-disabled", !canRedo);
         $("#drawing-redo .drawing-undo-text").toggleClass("drawing-undo-text-disabled", !canRedo);
     }
