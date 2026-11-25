@@ -22,7 +22,7 @@ function initUndo(globals, globalsDrawing) {
     globalsDrawing.qMaterial.uniforms.brush_radius.value = step.maskingRadius;
     globalsDrawing.qMaterial.uniforms.brush_type.value = step.brushType;
     globalsDrawing.qMaterial.uniforms.brush_color.value = step.brushColor;
-    globalsDrawing.qMaterial.uniforms.brush_texture.value = globalsDrawing.brush.getTextureById(step.brushTexture); // TODO: id to three.Texture
+    globalsDrawing.qMaterial.uniforms.brush_texture.value = globalsDrawing.brush.getTextureById(step.brushTexture);
     globalsDrawing.qMaterial.uniforms.brush_min_angle_cos.value = step.maskingMinAngleCos;
     globalsDrawing.qMaterial.uniforms.depth_epsilon.value = step.maskingDepthEpsilon;
 
@@ -61,18 +61,29 @@ function initUndo(globals, globalsDrawing) {
     }
   }
 
-  function maybeUnuseTexture(step) {
+  function unuseTexture(step) {
     if (step.type === 'brush') {
       globalsDrawing.brush.textureUnuse(step.brushTexture);
+    } else if (step.type === 'snapshot') {
+      if (step.frontSide) {
+        step.frontTexture.dispose();
+      }
+
+      if (step.backSide) {
+        step.backTexture.dispose();
+      }
+    }
+  }
+
+  function unuseTextures(from, to) {
+    for (var i = from; i < to; i++) {
+      unuseTexture(history[i]);
     }
   }
 
   function historyAddStep(step) {
     if (currentStep !== history.length - 1) {
-      for (var i = currentStep + 1; i < history.length; i += 1) {
-        maybeUnuseTexture(history[i]);
-      }
-
+      unuseTextures(currentStep + 1, history.length);
       history.splice(currentStep + 1, history.length - currentStep - 1);
     }
 
@@ -173,6 +184,8 @@ function initUndo(globals, globalsDrawing) {
   }
 
   function reset() {
+    unuseTextures(0, history.length);
+
     history.length = 0;
 
     currentStep = -1;
@@ -214,6 +227,8 @@ function initUndo(globals, globalsDrawing) {
     if (harbor === undefined) {
       reset(); // TODO: what to do ?
     } else {
+      unuseTextures(0, harbor);
+
       history.splice(0, harbor);
 
       currentStep -= harbor;
