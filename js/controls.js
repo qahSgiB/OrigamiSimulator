@@ -843,7 +843,7 @@ function initControls(globals) {
         }
     }
 
-    setHexInput("#brush-color", "000000", function (brushColor) {
+    setColorisInput("#brush-color", "#000000", function (brushColor) {
         globals.drawing.brush.setColorHex(brushColor);
     });
 
@@ -977,7 +977,7 @@ function initControls(globals) {
         globals.drawing.interactivity.clear();
     });
 
-    setHexInput("#drawing-clear-color", "ffa6e6", function (clearColor) {
+    setColorisInput("#drawing-clear-color", "#ffa6e6", function (clearColor) {
         globals.drawing.interactivity.setClearColorHex(clearColor);
     });
 
@@ -1221,6 +1221,25 @@ function initControls(globals) {
             callback(val);
         });
         return slider;
+    }
+
+    function setColorisInput(selector, value, callback) {
+        var inputEl = $(selector);
+
+        inputEl.click(function () {
+            Coloris({
+                el: selector,
+                wrap: false,
+                alpha: false,
+                onChange: function(color) {
+                    $(inputEl).css({ "border-color": color });
+                    callback(color.slice(1));
+                }
+            });
+        })
+
+        inputEl.val(value);
+        inputEl.css({ "border-color": value });
     }
 
     return {
