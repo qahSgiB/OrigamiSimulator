@@ -1035,10 +1035,6 @@ function initControls(globals) {
         globals.drawing.undo.redo(); // TODO: can redo ?
     });
 
-    setLink("#drawing-history-reset", function () {
-        globals.drawing.undo.reset();
-    });
-
 
     function setButtonGroup(id, callback) {
         $(id+" a").click(function(e) {
