@@ -247,7 +247,7 @@ function initUndo(globals, globalsDrawing) {
   }
 
   function canUndo() {
-    return currentStep > 0;
+    return currentStep > 1 || (currentStep === 1 && history[currentStep].type !== 'snapshot');
   }
 
   /**
@@ -437,7 +437,9 @@ function initUndo(globals, globalsDrawing) {
     makeStepBrush: makeStepBrush,
     makeSnapshot: makeSnapshot,
     reset: reset,
+    canUndo: canUndo,
     undo: undo,
+    canRedo: canRedo,
     redo: redo,
     getState: getState,
     history: history, // TODO: debug

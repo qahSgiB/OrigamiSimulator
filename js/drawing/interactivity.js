@@ -15,6 +15,7 @@ function initInteractivity(globals, globalsDrawing) {
 
   function clear() {
     globalsDrawing.undo.makeStepClear(frontSideEnabled, backSideEnabled, clearColor);
+    globals.controls.updateHistoryButtons();
   }
 
   function mouseToClipPoint(mouse) {
@@ -75,6 +76,8 @@ function initInteractivity(globals, globalsDrawing) {
       );
     }
 
+    globals.controls.updateHistoryButtons();
+
     return from.clone().add(step.clone().multiplyScalar(count));
   }
 
@@ -90,6 +93,8 @@ function initInteractivity(globals, globalsDrawing) {
       brushUniforms.radius, brushUniforms.depthEpsilon, brushUniforms.minAngleCos,
       brushUniforms.type, brushUniforms.color, brushUniforms.texture,
     );
+
+    globals.controls.updateHistoryButtons();
   }
 
   function onMouseMove(event) {

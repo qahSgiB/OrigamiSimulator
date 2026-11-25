@@ -671,6 +671,7 @@ function initControls(globals) {
 
         if (globals.simulationRunning) {
             globals.drawing.undo.reset(); // undo destroy after running the simulation
+            globals.controls.updateHistoryButtons();
         }
 
         globals.model.pause();
@@ -1028,12 +1029,24 @@ function initControls(globals) {
     });
 
     setLink("#drawing-undo", function () {
-        globals.drawing.undo.undo(); // TODO: can undo ?
+        globals.drawing.undo.undo();
+        updateHistoryButtons();
     });
 
     setLink("#drawing-redo", function () {
-        globals.drawing.undo.redo(); // TODO: can redo ?
+        globals.drawing.undo.redo();
+        updateHistoryButtons();
     });
+
+    function updateHistoryButtons() {
+        var canUndo = globals.drawing.undo.canUndo();
+        $("#drawing-undo").toggleClass("drawing-undo-disabled", !canUndo);
+        $("#drawing-undo .drawing-undo-text").toggleClass("drawing-undo-text-disabled", !canUndo);
+
+        var canRedo = globals.drawing.undo.canRedo();
+        $("#drawing-redo").toggleClass("drawing-undo-disabled", !canRedo);
+        $("#drawing-redo .drawing-undo-text").toggleClass("drawing-undo-text-disabled", !canRedo);
+    }
 
 
     function setButtonGroup(id, callback) {
@@ -1216,6 +1229,7 @@ function initControls(globals) {
         setSliderInputVal: setSliderInputVal,
         setColorMode: setColorMode,
         setMode: setMode,
+        updateHistoryButtons: updateHistoryButtons,
     }
 }
 

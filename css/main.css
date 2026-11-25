@@ -815,6 +815,11 @@ object {
     justify-content: center;
 }
 
+.drawing-undo-disabled {
+    cursor: default;
+    pointer-events: none;
+}
+
 .drawing-undo-text {
     margin: 0;
 
@@ -829,6 +834,16 @@ object {
 .drawing-undo-text:hover {
     background-color: rgb(205, 205, 205);
     color: rgb(105, 105, 105);
+}
+
+.drawing-undo-text-disabled {
+    background-color: rgb(200, 200, 200);
+    color: rgb(160, 160, 160);
+}
+
+.drawing-undo-text-disabled:hover {
+    background-color: rgb(200, 200, 200);
+    color: rgb(160, 160, 160);
 }
 
 .drawing-title {

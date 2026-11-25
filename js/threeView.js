@@ -67,6 +67,7 @@ function initThreeView(globals) {
 
         controls.addEventListener("change", function () {
             globals.drawing.undo.reset(); // undo destroy on camera movement
+            globals.controls.updateHistoryButtons();
         });
 
         _render(); // render before model loads
@@ -189,6 +190,7 @@ function initThreeView(globals) {
         controls.handleResize();
 
         globals.drawing.undo.reset(); // undo destroy on window resize
+        globals.controls.updateHistoryButtons();
     }
 
     function enableControls(state) {

@@ -439,6 +439,7 @@ function initModel(globals) {
 
         globals.drawing.updateGeometry(geometry);
         globals.drawing.undo.reset(); // undo destroy on model change
+        globals.controls.updateHistoryButtons();
 
         globals.needsSync = false;
         if (!globals.simulationRunning) reset();
