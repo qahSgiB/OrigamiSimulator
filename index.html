@@ -1434,6 +1434,7 @@
     <div class="drawing-undo-container">
         <a href="#" id="drawing-undo" class="drawing-undo-disabled"><p class="drawing-undo-text drawing-undo-text-disabled">Undo</p></a>
         <a href="#" id="drawing-redo" class="drawing-undo-disabled"><p class="drawing-undo-text drawing-undo-text-disabled">Redo</p></a>
+        <a href="#" id="drawing-undo-warning" class="drawing-undo-warning"><img class="drawing-undo-warning-image" src="assets/icons/warning.svg" /></a>
     </div>
     <p class="drawing-title drawing-title-brush">Brush</p>
     <div class="drawing-brush-grid">
@@ -1516,6 +1517,23 @@
     <p id="drawing-export-progress" class="drawing-export-progress">Export in Progress ...</p>
     <a href="#" id="drawing-reset-controls" class="drawing-reset-button"><p class="drawing-reset-text">Reset Controls</p></a>
 </div>
+
+<div class="modal fade" id="drawingModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-body">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+                <p><b>UNDO & REDO</b><br/><br/>
+                <b>Undo functionality is currently limited.</b>
+                Limited in a sense, that there are many actions which lead to a loss of the undo history.
+                Actions which lead to the loss are following: any camera movement (zoom, rotation), window resizing and running of the simulation.
+                </p>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
 
 <div class="modal fade" id="tipsModal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-lg">

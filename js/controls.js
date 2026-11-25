@@ -81,6 +81,10 @@ function initControls(globals) {
         $('#aboutAnimationModal').modal('show');
     });
 
+    setLink("#drawing-undo-warning", function() {
+        $('#drawingModal').modal('show');
+    });
+
     setLink("#cameraX", function() {
         globals.threeView.setCameraX(1);
     });
@@ -738,11 +742,15 @@ function initControls(globals) {
             globals.rotateModel = null;
             globals.threeView.resetModel();
             globals.drawing.end();
+
+            $('#controlsDrawing').animate({ left: "-300px" });
         }
 
         if (mode === "orbit") {
             globals.UI3D.hideHighlighters();
             globals.drawing.end();
+
+            $('#controlsDrawing').animate({ left: "-300px" });
         }
 
         if (mode === "draw") {
@@ -751,6 +759,8 @@ function initControls(globals) {
             globals.drawing.start();
 
             simulationPause();
+
+            $('#controlsDrawing').animate({ left: 0 });
         }
     }
 
@@ -775,32 +785,22 @@ function initControls(globals) {
     });
 
     setLink("#showAdvancedOptions", function() {
-        $('#controlsDrawing').hide();
+        $('#controlsDrawing').animate({ left: "-300px" });
         $("#basicUI").hide();
-        $("#controlsBottom").animate({
-            bottom: "-140px"
-        }, function() {
-            $("#controls").animate({
-            right: 0
-            });
-            $("#controlsLeft").animate({
-                left: 0
-            });
+        $("#controlsBottom").animate({ bottom: "-140px" }, function() {
+            $("#controls").animate({ right: 0 });
+            $("#controlsLeft").animate({ left: 0 });
         });
     });
     setLink("#hideAdvancedOptions", function() {
-        $("#controls").animate({
-            right: "-430px"
-        }, function() {
+        $("#controls").animate({ right: "-430px" }, function() {
             $("#basicUI").fadeIn();
-            $("#controlsBottom").animate({
-                bottom: 0
-            });
+            $("#controlsBottom").animate({ bottom: 0 });
         });
-        $("#controlsLeft").animate({
-            left: "-420px"
-        }, function() {
-            $('#controlsDrawing').show();
+        $("#controlsLeft").animate({ left: "-420px" }, function() {
+            if (globals.drawingActive) {
+                $('#controlsDrawing').animate({ left: 0 });
+            }
         });
     });
 

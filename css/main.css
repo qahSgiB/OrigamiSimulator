@@ -787,7 +787,7 @@ object {
 
 #controlsDrawing {
     position: absolute;
-    left: 0px;
+    left: -300px;
     width: 300px;
     top: 53px;
     bottom: 0px;
@@ -844,6 +844,16 @@ object {
 .drawing-undo-text-disabled:hover {
     background-color: rgb(200, 200, 200);
     color: rgb(160, 160, 160);
+}
+
+.drawing-undo-warning {
+    line-height: 0;
+}
+
+.drawing-undo-warning-image {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
 }
 
 .drawing-title {
