@@ -78,9 +78,15 @@ function initUndo(globals, globalsDrawing) {
 
     history.push(step);
     currentStep += 1;
+
+    checkHistoryLength();
   }
 
   function makeStepClear(frontSide, backSide, color) {
+    if (!frontSide || !backSide) {
+      maybeSnapshotFirst();
+    }
+
     var step = {
       type: 'clear',
       frontSide: frontSide,
@@ -109,9 +115,7 @@ function initUndo(globals, globalsDrawing) {
     maskingRadius, maskingDepthEpsilon, maskingMinAngleCos,
     brushType, brushColor, brushTexture,
   ) {
-    if (history.length === 0) {
-      globalsDrawing.makeSnapshot();
-    }
+    maybeSnapshotFirst();
 
     var step = {
       type: 'brush',
@@ -131,6 +135,8 @@ function initUndo(globals, globalsDrawing) {
     historyAddStep(step);
     applyStepBrush(step, true, true);
     globalsDrawing.brush.textureUse(brushTexture);
+
+    maybeSnapshotRate();
   }
 
   /**
@@ -162,6 +168,8 @@ function initUndo(globals, globalsDrawing) {
     history.splice(currentStep, 0, step);
 
     updateHarbors(frontSide, backSide);
+
+    checkHistoryLength();
   }
 
   function reset() {
@@ -170,6 +178,48 @@ function initUndo(globals, globalsDrawing) {
     currentStep = -1;
     lastBackHarbor = -1;
     lastFrontHarbor = -1;
+  }
+
+  function maybeSnapshotRate() {
+    var harborDistance = currentStep - Math.min(lastFrontHarbor, lastBackHarbor);
+
+    if (harborDistance >= snapshotRate) {
+      globalsDrawing.makeSnapshot();
+    }
+  }
+
+  /** To ensure that the first step in the history is a harbor step. */
+  function maybeSnapshotFirst() {
+    if (history.length === 0) {
+      globalsDrawing.makeSnapshot();
+    }
+  }
+
+  function checkHistoryLength() {
+    if (history.length <= maxHistoryLength) {
+      return;
+    }
+
+    var harbor = undefined;
+    var firstPossibleStep = history.length - maxHistoryLength;
+
+    for (var i = firstPossibleStep; i <= currentStep; i++) {
+      var step = history[i];
+      if (stepIsHarbor(step.type) && step.frontSide && step.backSide) {
+        harbor = i;
+        break;
+      }
+    }
+
+    if (harbor === undefined) {
+      reset(); // TODO: what to do ?
+    } else {
+      history.splice(0, harbor);
+
+      currentStep -= harbor;
+      lastFrontHarbor = lastFrontHarbor - harbor;
+      lastBackHarbor = lastBackHarbor - harbor;
+    }
   }
 
   function stepIsHarbor(stepType) {
@@ -363,6 +413,9 @@ function initUndo(globals, globalsDrawing) {
   var lastFrontHarbor = -1; // TODO: could use some optimal data structure
   var lastBackHarbor = -1;
   var history = [];
+
+  var snapshotRate = 30; // TODO: tweak this value
+  var maxHistoryLength = 600; // TODO: tweak this value
 
   return {
     makeStepClear: makeStepClear,
